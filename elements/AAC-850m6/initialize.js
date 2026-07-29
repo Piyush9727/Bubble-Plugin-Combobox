@@ -1,5 +1,5 @@
 function(instance, context) {
-  const uid = 'cb-' + Math.random().toString(36).slice(2, 10);
+  const uid = 'cb-' + Math.random().toString(36).substring(2, 9);
 
   instance.data.uid = uid;
   instance.data.things = [];
@@ -54,6 +54,31 @@ function(instance, context) {
     });
   };
 
+  // Helper to extract display label from option (supports Bubble Thing objects & primitive strings)
+  instance.data.getItemLabel = function(item) {
+    if (item === null || item === undefined) return '';
+    if (typeof item === 'object' && typeof item.get === 'function') {
+      const field = instance.data.captionField;
+      if (field) {
+        const val = item.get(field);
+        return val !== null && val !== undefined ? String(val) : '';
+      }
+      return String(item);
+    }
+    return String(item);
+  };
+
+  // Helper to extract unique ID from option
+  instance.data.getItemId = function(item) {
+    if (item === null || item === undefined) return '';
+    if (typeof item === 'object' && typeof item.get === 'function') {
+      const id = item.get('_id');
+      if (id) return String(id);
+    }
+    return String(item);
+  };
+
+  // Calculate position & viewport bounds (flip dropdown above if needed)
   instance.data.positionList = function() {
     const rect = $input[0].getBoundingClientRect();
     $list.css({ top: rect.bottom + 4 + 'px', left: rect.left + 'px', width: rect.width + 'px' });
@@ -133,10 +158,14 @@ function(instance, context) {
       const isSelected = selectedKey !== null && instance.data.getKey(t) === selectedKey;
       if (isSelected) preselectIdx = i;
 
-      const $item = $('<li>')
-        .attr({ id: uid + '-opt-' + i, role: 'option', 'aria-selected': isSelected ? 'true' : 'false' })
-        .addClass('cb-item')
-        .toggleClass('cb-item-selected', isSelected);
+      const $option = $('<li>')
+        .attr({
+          id: `${uid}-opt-${i}`,
+          role: 'option',
+          'aria-selected': isSelected ? 'true' : 'false'
+        })
+        .addClass('cb-option')
+        .toggleClass('cb-option-selected', isSelected);
 
       $('<span class="cb-check">').text(isSelected ? '✓' : '').appendTo($item);
       $('<span class="cb-label">').text(label).appendTo($item);
