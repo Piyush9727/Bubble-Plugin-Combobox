@@ -71,6 +71,36 @@
             "name": "border_radius",
             "optional": true,
             "rank": 5
+        },
+        "AAM": {
+            "caption": "selected_bg_color",
+            "default_val": "rgba(79, 70, 229, 1)",
+            "doc": "Background color of the selected option row.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "selected_bg_color",
+            "optional": true,
+            "rank": 6
+        },
+        "AAN": {
+            "caption": "selected_text_color",
+            "default_val": "rgba(255, 255, 255, 1)",
+            "doc": "Text and checkmark color of the selected option row.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "selected_text_color",
+            "optional": true,
+            "rank": 7
+        },
+        "AAO": {
+            "caption": "default_value",
+            "doc": "Pre-selected value shown when the combobox loads.",
+            "editor": "DynamicValue",
+            "is_list": false,
+            "name": "default_value",
+            "optional": true,
+            "rank": 8,
+            "value": "custom_data_AAD"
         }
     },
     "has_reset_fn": true,

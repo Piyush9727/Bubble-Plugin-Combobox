@@ -37,6 +37,8 @@
   color: inherit;
   opacity: 0.6;
   line-height: 1;
+  padding: 0;
+  margin: 0;
 }
 
 .cb-clear:hover {
@@ -85,12 +87,13 @@
 
 .cb-item-selected {
   font-weight: 600;
-  color: #ffffff;
-  background: #4f46e5;
+  color: var(--cb-sel-text, #ffffff);
+  background: var(--cb-sel-bg, #4f46e5);
 }
 
 .cb-item-selected.cb-item-active {
-  background: #4338ca;
+  background: var(--cb-sel-bg, #4f46e5);
+  filter: brightness(0.9);
 }
 
 .cb-check {
