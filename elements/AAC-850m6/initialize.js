@@ -26,8 +26,7 @@ function(instance, context) {
       <input type="text" class="cb-input" autocomplete="off" spellcheck="false"
         role="combobox" aria-autocomplete="list" aria-expanded="false"
         aria-controls="${uid}-listbox" id="${uid}-input" />
-      <button type="button" class="cb-clear" tabindex="-1" aria-label="Clear" style="right:24px;">&times;</button>
-      <div class="cb-arrow" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); pointer-events:none; opacity:0.5; font-size:9px; display:flex; flex-direction:column; align-items:center; line-height:0.7;">▲<span style="margin-top:-2px;">▼</span></div>
+      <button type="button" class="cb-clear" tabindex="-1" aria-label="Clear" style="right:4px;">&times;</button>
     </div>
   `).appendTo(instance.canvas);
 
@@ -95,22 +94,17 @@ function(instance, context) {
     return String(item);
   };
 
-  // Calculate floating listbox position relative to input/canvas
+  // Calculate floating listbox position relative to outer canvas box
   instance.data.positionList = function() {
-    const inputEl = $input[0];
-    const rect = inputEl ? inputEl.getBoundingClientRect() : { top: 0, bottom: 0, left: 0, width: 200 };
+    if (!instance.canvas) return;
     const canvasEl = instance.canvas[0] || instance.canvas;
-    const canvasRect = canvasEl ? canvasEl.getBoundingClientRect() : rect;
-
-    const width = Math.max(rect.width || 0, canvasRect.width || 0, 160);
-    const left = rect.left > 0 ? rect.left : canvasRect.left;
-    const top = rect.bottom > 0 ? rect.bottom + 4 : canvasRect.bottom + 4;
+    const canvasRect = canvasEl.getBoundingClientRect();
 
     $list.css({
-      top: top + 'px',
-      left: left + 'px',
-      minWidth: width + 'px',
-      width: width + 'px'
+      top: (canvasRect.bottom + 4) + 'px',
+      left: canvasRect.left + 'px',
+      width: canvasRect.width + 'px',
+      boxSizing: 'border-box'
     });
   };
 
