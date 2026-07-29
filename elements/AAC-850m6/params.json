@@ -13,21 +13,21 @@
     "events": {
         "AAJ": {
             "caption": "combobox_value_changed",
-            "doc": "",
+            "doc": "Fired when the user selects a value in the combobox.",
             "name": "value_changed"
         }
     },
     "fields": {
         "AAD": {
             "caption": "options_type",
-            "doc": "",
+            "doc": "The data type of options in the dropdown list.",
             "editor": "custom_type",
             "name": "options_type",
             "rank": 0
         },
         "AAE": {
             "caption": "options_list",
-            "doc": "",
+            "doc": "The list of items to display in the dropdown.",
             "editor": "DynamicValue",
             "is_list": true,
             "name": "options_list",
@@ -36,20 +36,31 @@
         },
         "AAF": {
             "caption": "caption_field",
-            "doc": "",
+            "doc": "The field to display as the text caption for each option.",
             "editor": "custom_field_AAD",
             "name": "caption_field",
+            "optional": true,
             "rank": 2
         },
         "AAG": {
             "caption": "placeholder",
             "default_val": "Select option",
-            "doc": "",
+            "doc": "Placeholder text when no value is selected.",
             "editor": "StaticText",
             "in_style": true,
             "name": "placeholder",
             "optional": true,
             "rank": 3
+        },
+        "AAK": {
+            "caption": "no_results_text",
+            "default_val": "No options found",
+            "doc": "Text shown when search yields no matching items.",
+            "editor": "StaticText",
+            "in_style": true,
+            "name": "no_results_text",
+            "optional": true,
+            "rank": 4
         }
     },
     "has_reset_fn": true,
@@ -62,12 +73,13 @@
         "Font": true,
         "MinWidth": true,
         "Padding": true,
+        "Responsive": true,
         "resizable": true
     },
     "states": {
         "AAH": {
             "caption": "value",
-            "doc": "",
+            "doc": "The currently selected item object or value.",
             "initialization_code": {
                 "fn": "function(properties, context) {\n\n\n\n}"
             },
@@ -76,7 +88,7 @@
         },
         "AAI": {
             "caption": "search_term",
-            "doc": "",
+            "doc": "The search term entered by the user.",
             "initialization_code": {
                 "fn": "function(properties, context) {\n\n\n\n}"
             },
