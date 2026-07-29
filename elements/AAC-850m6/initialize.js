@@ -1,36 +1,58 @@
 function(instance, context) {
   const uid = 'cb-' + Math.random().toString(36).substring(2, 9);
 
-  const $wrapper = $(`
-    <div class="cb-wrapper">
-      <div class="cb-input-container">
-        <input type="text" class="cb-input" autocomplete="off" spellcheck="false"
-          role="combobox" aria-autocomplete="list" aria-expanded="false"
-          aria-haspopup="listbox" id="${uid}-input" aria-controls="${uid}-listbox" />
-        <div class="cb-icon-wrapper">
-          <button type="button" class="cb-clear-btn" aria-label="Clear selection" title="Clear selection" style="display:none;">✕</button>
-          <svg class="cb-chevron" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-        </div>
-      </div>
-    </div>
-  `).appendTo(instance.canvas);
-
-  const $input = $wrapper.find('.cb-input');
-  const $clearBtn = $wrapper.find('.cb-clear-btn');
-
-  const $list = $(`<ul class="cb-listbox" id="${uid}-listbox" role="listbox" tabindex="-1"></ul>`).appendTo('body');
-
   instance.data.uid = uid;
-  instance.data.$wrapper = $wrapper;
-  instance.data.$input = $input;
-  instance.data.$clearBtn = $clearBtn;
-  instance.data.$list = $list;
   instance.data.things = [];
   instance.data.captionField = null;
-  instance.data.noResultsText = 'No options found';
   instance.data.selectedThing = null;
   instance.data.activeIndex = -1;
   instance.data.filtered = [];
+  instance.data.isOpen = false;
+
+  // Unique key helper — never rely on _id alone (option sets don't have one)
+  instance.data.getKey = function(t) {
+    if (!t) return null;
+    try {
+      const id = t.get('_id');
+      if (id !== undefined && id !== null) return 'id:' + String(id);
+    } catch (e) { /* fall through */ }
+    return 'label:' + String(t.get(instance.data.captionField));
+  };
+
+  const $container = $(`
+    <div class="cb-wrapper">
+      <input type="text" class="cb-input" autocomplete="off" spellcheck="false"
+        role="combobox" aria-autocomplete="list" aria-expanded="false"
+        aria-controls="${uid}-listbox" id="${uid}-input" />
+      <button type="button" class="cb-clear" tabindex="-1" aria-label="Clear">&times;</button>
+    </div>
+  `).appendTo(instance.canvas);
+
+  const $input = $container.find('.cb-input');
+  const $clear = $container.find('.cb-clear');
+
+  const $list = $(`<ul class="cb-list" id="${uid}-listbox" role="listbox"></ul>`)
+    .appendTo('body');
+
+  instance.data.$container = $container;
+  instance.data.$input = $input;
+  instance.data.$clear = $clear;
+  instance.data.$list = $list;
+
+  // Copy font from canvas (populated by Bubble's "Font style" property) onto our input
+  instance.data.syncFont = function() {
+    const cs = window.getComputedStyle(instance.canvas);
+    $input.css({
+      fontFamily: cs.fontFamily,
+      fontSize: cs.fontSize,
+      fontWeight: cs.fontWeight,
+      color: cs.color
+    });
+    $list.css({
+      fontFamily: cs.fontFamily,
+      fontSize: cs.fontSize
+    });
+  };
 
   // Helper to extract display label from option (supports Bubble Thing objects & primitive strings)
   instance.data.getItemLabel = function(item) {
@@ -58,105 +80,83 @@ function(instance, context) {
 
   // Calculate position & viewport bounds (flip dropdown above if needed)
   instance.data.positionList = function() {
-    if (!$input.is(':visible') || !$list.is(':visible')) return;
     const rect = $input[0].getBoundingClientRect();
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    const listHeight = Math.min(260, $list.outerHeight() || 200);
-
-    let top = rect.bottom + 4;
-    if (rect.bottom + listHeight > viewportHeight && rect.top - listHeight > 0) {
-      top = rect.top - listHeight - 4;
-    }
-
-    $list.css({
-      top: top + 'px',
-      left: rect.left + 'px',
-      width: rect.width + 'px'
-    });
+    $list.css({ top: rect.bottom + 4 + 'px', left: rect.left + 'px', width: rect.width + 'px' });
   };
 
-  instance.data.openList = function() {
-    $wrapper.addClass('cb-expanded');
-    $input.attr('aria-expanded', 'true');
+  instance.data.open = function() {
+    instance.data.isOpen = true;
     instance.data.positionList();
-    $list.show();
+    $list.addClass('cb-list-open');
+    $input.attr('aria-expanded', 'true');
   };
 
-  instance.data.closeList = function() {
-    $list.hide();
-    $wrapper.removeClass('cb-expanded');
+  instance.data.close = function() {
+    instance.data.isOpen = false;
+    $list.removeClass('cb-list-open');
     $input.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
     instance.data.activeIndex = -1;
   };
 
   instance.data.setActive = function(idx) {
-    const $options = $list.find('.cb-option');
-    $options.removeClass('cb-option-active');
+    const $items = $list.find('.cb-item');
+    $items.removeClass('cb-item-active');
     instance.data.activeIndex = idx;
-
-    if (idx >= 0 && idx < $options.length) {
-      const $active = $options.eq(idx);
-      $active.addClass('cb-option-active');
-      const optId = $active.attr('id');
-      if (optId) $input.attr('aria-activedescendant', optId);
-      $active[0].scrollIntoView({ block: 'nearest' });
-    } else {
-      $input.removeAttr('aria-activedescendant');
+    if (idx >= 0 && idx < $items.length) {
+      const $el = $items.eq(idx);
+      $el.addClass('cb-item-active');
+      $input.attr('aria-activedescendant', $el.attr('id'));
+      $el[0].scrollIntoView({ block: 'nearest' });
     }
   };
 
-  instance.data.selectItem = function(item) {
-    const label = instance.data.getItemLabel(item);
+  instance.data.selectItem = function(t) {
+    const label = String(t.get(instance.data.captionField));
     $input.val(label);
-    instance.data.selectedThing = item;
-    $clearBtn.show();
-
-    instance.publishState('value', item);
+    instance.data.selectedThing = t;
+    $clear.toggle(true);
+    instance.publishState('value', t);
     instance.triggerEvent('value_changed');
-    instance.data.closeList();
+    instance.data.close();
   };
 
   instance.data.clearSelection = function() {
-    instance.data.selectedThing = null;
     $input.val('');
-    $clearBtn.hide();
+    instance.data.selectedThing = null;
+    $clear.toggle(false);
     instance.publishState('value', null);
-    instance.publishState('search_term', '');
     instance.triggerEvent('value_changed');
-    if ($list.is(':visible')) {
-      instance.data.renderList('', true);
-    }
+    instance.data.renderOptions('');
+    $input.trigger('focus');
   };
 
-  instance.data.renderList = function(filterText, isFocusOpen) {
+  // Single source of truth for rendering the option list
+  instance.data.renderOptions = function(query) {
+    const field = instance.data.captionField;
     const things = instance.data.things || [];
-    const query = (isFocusOpen ? '' : (filterText || '')).trim().toLowerCase();
+    if (!field) { instance.data.close(); return; }
 
-    const filtered = things.filter(t => {
-      if (!query) return true;
-      const label = instance.data.getItemLabel(t).toLowerCase();
-      return label.includes(query);
-    });
+    const q = (query || '').toLowerCase();
+    const filtered = q
+      ? things.filter(t => String(t.get(field) || '').toLowerCase().includes(q))
+      : things.slice();
 
     instance.data.filtered = filtered;
     $list.empty();
 
     if (filtered.length === 0) {
-      $('<li>')
-        .addClass('cb-no-results')
-        .text(instance.data.noResultsText)
-        .appendTo($list);
-      instance.data.openList();
-      instance.data.setActive(-1);
+      $('<li class="cb-empty">No results</li>').appendTo($list);
+      instance.data.open();
       return;
     }
 
-    const selectedId = instance.data.selectedThing ? instance.data.getItemId(instance.data.selectedThing) : null;
+    const selectedKey = instance.data.getKey(instance.data.selectedThing);
+    let preselectIdx = -1;
 
     filtered.forEach((t, i) => {
-      const label = instance.data.getItemLabel(t);
-      const itemId = instance.data.getItemId(t);
-      const isSelected = selectedId !== null && itemId === selectedId;
+      const label = String(t.get(field));
+      const isSelected = selectedKey !== null && instance.data.getKey(t) === selectedKey;
+      if (isSelected) preselectIdx = i;
 
       const $option = $('<li>')
         .attr({
@@ -167,113 +167,59 @@ function(instance, context) {
         .addClass('cb-option')
         .toggleClass('cb-option-selected', isSelected);
 
-      $('<span>').addClass('cb-option-label').text(label).appendTo($option);
+      $('<span class="cb-check">').text(isSelected ? '✓' : '').appendTo($item);
+      $('<span class="cb-label">').text(label).appendTo($item);
 
-      if (isSelected) {
-        $('<span>').addClass('cb-option-check').text('✓').appendTo($option);
-      }
-
-      $option.on('mousedown', function(e) {
-        e.preventDefault();
-        instance.data.selectItem(t);
-      });
-
-      $option.on('mouseenter', function() {
-        instance.data.setActive(i);
-      });
-
-      $option.appendTo($list);
+      $item.on('mousedown', e => { e.preventDefault(); instance.data.selectItem(t); });
+      $item.on('mouseenter', () => instance.data.setActive(i));
+      $item.appendTo($list);
     });
 
-    instance.data.openList();
-
-    const preselectIdx = selectedId !== null
-      ? filtered.findIndex(t => instance.data.getItemId(t) === selectedId)
-      : 0;
-
-    instance.data.setActive(preselectIdx >= 0 ? preselectIdx : 0);
+    instance.data.open();
+    instance.data.setActive(preselectIdx);
   };
 
-  // Event Listeners
-  $clearBtn.on('mousedown', function(e) {
-    e.preventDefault();
-    instance.data.clearSelection();
+  // --- Events ---
+  $input.on('focus', function() {
+    instance.data.renderOptions(''); // always show full list on focus
   });
 
   $input.on('input', function() {
     const val = $(this).val();
-    if (!val) {
-      $clearBtn.hide();
-    } else if (instance.data.selectedThing) {
-      $clearBtn.show();
-    }
     instance.publishState('search_term', val);
-    instance.data.renderList(val, false);
-  });
-
-  $input.on('focus', function() {
-    instance.data.renderList($input.val(), true);
+    if (!val) { instance.data.selectedThing = null; $clear.toggle(false); instance.publishState('value', null); }
+    instance.data.renderOptions(val);
   });
 
   $input.on('keydown', function(e) {
-    const max = instance.data.filtered.length - 1;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (!$list.is(':visible')) {
-        instance.data.renderList($input.val(), true);
-        return;
-      }
-      instance.data.setActive(Math.min(instance.data.activeIndex + 1, max));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (!$list.is(':visible')) {
-        instance.data.renderList($input.val(), true);
-        return;
-      }
-      instance.data.setActive(Math.max(instance.data.activeIndex - 1, 0));
-    } else if (e.key === 'Home') {
-      if ($list.is(':visible')) {
-        e.preventDefault();
-        instance.data.setActive(0);
-      }
-    } else if (e.key === 'End') {
-      if ($list.is(':visible')) {
-        e.preventDefault();
-        instance.data.setActive(max);
-      }
-    } else if (e.key === 'Enter') {
-      if ($list.is(':visible')) {
-        e.preventDefault();
-        const idx = instance.data.activeIndex;
-        if (idx >= 0 && instance.data.filtered[idx]) {
-          instance.data.selectItem(instance.data.filtered[idx]);
-        }
-      }
-    } else if (e.key === 'Escape') {
-      if ($list.is(':visible')) {
-        e.preventDefault();
-        instance.data.closeList();
-      }
-    } else if (e.key === 'Tab') {
-      instance.data.closeList();
+    if (!instance.data.isOpen && (e.key === 'ArrowDown' || e.key === 'Enter')) {
+      instance.data.renderOptions($input.val() === (instance.data.selectedThing && String(instance.data.selectedThing.get(instance.data.captionField))) ? '' : $input.val());
+      return;
     }
+    const max = instance.data.filtered.length - 1;
+    if (e.key === 'ArrowDown') { e.preventDefault(); instance.data.setActive(Math.min(instance.data.activeIndex + 1, max)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); instance.data.setActive(Math.max(instance.data.activeIndex - 1, 0)); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      const idx = instance.data.activeIndex;
+      if (idx >= 0 && instance.data.filtered[idx]) instance.data.selectItem(instance.data.filtered[idx]);
+    } else if (e.key === 'Escape') { instance.data.close(); }
   });
 
   $input.on('blur', function() {
-    setTimeout(() => {
-      if (!$list.is(':focus-within') && !document.activeElement.classList.contains('cb-clear-btn')) {
-        instance.data.closeList();
-      }
-    }, 120);
+    setTimeout(() => { instance.data.close(); }, 120);
   });
 
-  $(window).on('scroll.' + uid + ' resize.' + uid, function() {
-    instance.data.positionList();
+  $clear.on('mousedown', function(e) { e.preventDefault(); instance.data.clearSelection(); });
+  $clear.toggle(false);
+
+  $(window).on('scroll.' + uid + ' resize.' + uid, () => {
+    if (instance.data.isOpen) instance.data.positionList();
   });
 
   $(document).on('click.' + uid, function(e) {
-    if (!$wrapper[0].contains(e.target) && !$list[0].contains(e.target)) {
-      instance.data.closeList();
+    if (!$container[0].contains(e.target) && !$list[0].contains(e.target)) {
+      instance.data.close();
     }
   });
 }
