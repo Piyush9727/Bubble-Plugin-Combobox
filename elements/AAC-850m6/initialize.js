@@ -111,7 +111,7 @@ function(instance, context) {
   };
 
   instance.data.selectItem = function(t) {
-    const label = String(t.get(instance.data.captionField));
+    const label = instance.data.getItemLabel(t);
     $input.val(label);
     instance.data.selectedThing = t;
     $clear.toggle(true);
@@ -132,13 +132,11 @@ function(instance, context) {
 
   // Single source of truth for rendering the option list
   instance.data.renderOptions = function(query) {
-    const field = instance.data.captionField;
     const things = instance.data.things || [];
-    if (!field) { instance.data.close(); return; }
 
     const q = (query || '').toLowerCase();
     const filtered = q
-      ? things.filter(t => String(t.get(field) || '').toLowerCase().includes(q))
+      ? things.filter(t => instance.data.getItemLabel(t).toLowerCase().includes(q))
       : things.slice();
 
     instance.data.filtered = filtered;
@@ -154,18 +152,18 @@ function(instance, context) {
     let preselectIdx = -1;
 
     filtered.forEach((t, i) => {
-      const label = String(t.get(field));
+      const label = instance.data.getItemLabel(t);
       const isSelected = selectedKey !== null && instance.data.getKey(t) === selectedKey;
       if (isSelected) preselectIdx = i;
 
-      const $option = $('<li>')
+      const $item = $('<li>')
         .attr({
           id: `${uid}-opt-${i}`,
           role: 'option',
           'aria-selected': isSelected ? 'true' : 'false'
         })
-        .addClass('cb-option')
-        .toggleClass('cb-option-selected', isSelected);
+        .addClass('cb-item')
+        .toggleClass('cb-item-selected', isSelected);
 
       $('<span class="cb-check">').text(isSelected ? '✓' : '').appendTo($item);
       $('<span class="cb-label">').text(label).appendTo($item);
@@ -193,7 +191,7 @@ function(instance, context) {
 
   $input.on('keydown', function(e) {
     if (!instance.data.isOpen && (e.key === 'ArrowDown' || e.key === 'Enter')) {
-      instance.data.renderOptions($input.val() === (instance.data.selectedThing && String(instance.data.selectedThing.get(instance.data.captionField))) ? '' : $input.val());
+      instance.data.renderOptions($input.val() === (instance.data.selectedThing && instance.data.getItemLabel(instance.data.selectedThing)) ? '' : $input.val());
       return;
     }
     const max = instance.data.filtered.length - 1;

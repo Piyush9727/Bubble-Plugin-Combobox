@@ -1,11 +1,9 @@
 function(instance, properties, context) {
   instance.data.$input.attr('placeholder', properties.placeholder || '');
-  instance.data.syncFont();
+  if (typeof instance.data.syncFont === 'function') {
+    instance.data.syncFont();
+  }
 
-  const count = properties.options_list.length();
-  const things = properties.options_list.get(0, count); // 'not ready' handled by Bubble automatically
-
-  // 2. Extract options list safely (Bubble dynamic list property)
   let things = [];
   if (properties.options_list && typeof properties.options_list.length === 'function') {
     try {
@@ -19,8 +17,9 @@ function(instance, properties, context) {
     things = properties.options_list;
   }
   instance.data.things = things;
+  instance.data.captionField = properties.caption_field;
 
-  if (instance.data.isOpen) {
+  if (instance.data.isOpen && typeof instance.data.renderOptions === 'function') {
     instance.data.renderOptions(instance.data.$input.val());
   }
 }
