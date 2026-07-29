@@ -1,0 +1,119 @@
+{
+    "add_hover_pressed": true,
+    "add_is_visible": true,
+    "autobinding_is_list": false,
+    "can_fit_height": true,
+    "can_fit_width": true,
+    "category": "input forms",
+    "default_dim": {
+        "height": 40,
+        "width": 225
+    },
+    "display": "MultiSelect Dropdown",
+    "events": {
+        "AAM": {
+            "caption": "combobox_value_changed",
+            "doc": "Fired when the user selects a value in the combobox.",
+            "name": "value_changed"
+        }
+    },
+    "fields": {
+        "AAP": {
+            "caption": "caption_field",
+            "doc": "The field to display as the text caption for each option.",
+            "editor": "custom_field_AAD",
+            "name": "caption_field",
+            "optional": true,
+            "rank": 2
+        },
+        "AAQ": {
+            "caption": "placeholder",
+            "default_val": "Select option",
+            "doc": "Placeholder text when no value is selected.",
+            "editor": "StaticText",
+            "in_style": true,
+            "name": "placeholder",
+            "optional": true,
+            "rank": 3
+        },
+        "AAR": {
+            "caption": "no_results_text",
+            "default_val": "No options found",
+            "doc": "Text shown when search yields no matching items.",
+            "editor": "StaticText",
+            "in_style": true,
+            "name": "no_results_text",
+            "optional": true,
+            "rank": 4
+        },
+        "AAS": {
+            "caption": "border_radius",
+            "default_val": 6,
+            "doc": "Border radius of the input in pixels.",
+            "editor": "StaticNumber",
+            "in_style": true,
+            "name": "border_radius",
+            "optional": true,
+            "rank": 5
+        },
+        "AAT": {
+            "caption": "selected_bg_color",
+            "default_val": "rgba(79, 70, 229, 1)",
+            "doc": "Background color of the selected option row.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "selected_bg_color",
+            "optional": true,
+            "rank": 6
+        },
+        "AAU": {
+            "caption": "options_type",
+            "doc": "The data type of options in the dropdown list.",
+            "editor": "custom_type",
+            "name": "options_type",
+            "rank": 0
+        },
+        "AAV": {
+            "caption": "options_list",
+            "doc": "The list of items to display in the dropdown.",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "options_list",
+            "rank": 1,
+            "value": "custom_data_AAD"
+        }
+    },
+    "has_reset_fn": true,
+    "icon": "ion-android-arrow-dropdown",
+    "platform_type": "web",
+    "property_applications": {
+        "Background": true,
+        "Border": true,
+        "BoxShadow": true,
+        "Font": true,
+        "MinWidth": true,
+        "Padding": true,
+        "resizable": true
+    },
+    "states": {
+        "AAW": {
+            "caption": "value",
+            "doc": "The currently selected item object or value.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "value",
+            "value": "custom_data_AAD"
+        },
+        "AAX": {
+            "caption": "search_term",
+            "doc": "The search term entered by the user.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "search_term",
+            "value": "text"
+        }
+    },
+    "support_autobinding": false
+}

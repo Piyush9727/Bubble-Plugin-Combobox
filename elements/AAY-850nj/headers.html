@@ -1,0 +1,121 @@
+<style>
+.cb-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.cb-input {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-align: inherit;
+  padding: 0 24px 0 0 !important;
+  cursor: pointer;
+}
+
+.cb-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: inherit;
+  opacity: 0.6;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.cb-clear:hover {
+  opacity: 1;
+}
+
+.cb-list {
+  position: fixed;
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  z-index: 2147483647;
+  box-sizing: border-box;
+  display: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.cb-list-open {
+  display: block;
+}
+
+.cb-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  user-select: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.cb-item-active {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.cb-item-selected {
+  font-weight: 600;
+  color: var(--cb-sel-text, #ffffff);
+  background: var(--cb-sel-bg, #4f46e5);
+}
+
+.cb-item-selected.cb-item-active {
+  background: var(--cb-sel-bg, #4f46e5);
+  filter: brightness(0.9);
+}
+
+.cb-check {
+  width: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.cb-label {
+  flex: 1;
+  word-break: break-word;
+}
+
+.cb-empty {
+  padding: 12px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  font-style: italic;
+}
+</style>
