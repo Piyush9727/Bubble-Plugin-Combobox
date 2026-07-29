@@ -9,14 +9,16 @@ function(instance, context) {
   instance.data.filtered = [];
   instance.data.isOpen = false;
 
-  // Unique key helper — never rely on _id alone (option sets don't have one)
+  // Unique key helper
   instance.data.getKey = function(t) {
-    if (!t) return null;
+    if (t === null || t === undefined) return null;
     try {
-      const id = t.get('_id');
-      if (id !== undefined && id !== null) return 'id:' + String(id);
-    } catch (e) { /* fall through */ }
-    return 'label:' + String(t.get(instance.data.captionField));
+      if (typeof t.get === 'function') {
+        const id = t.get('_id');
+        if (id !== undefined && id !== null) return 'id:' + String(id);
+      }
+    } catch (e) { /* ignore */ }
+    return 'label:' + String(instance.data.getItemLabel(t));
   };
 
   const $container = $(`
@@ -31,57 +33,84 @@ function(instance, context) {
   const $input = $container.find('.cb-input');
   const $clear = $container.find('.cb-clear');
 
-  const $list = $(`<ul class="cb-list" id="${uid}-listbox" role="listbox"></ul>`)
-    .appendTo('body');
+  const $list = $(`<ul class="cb-list" id="${uid}-listbox" role="listbox"></ul>`).appendTo('body');
 
   instance.data.$container = $container;
   instance.data.$input = $input;
   instance.data.$clear = $clear;
   instance.data.$list = $list;
 
-  // Copy font from canvas (populated by Bubble's "Font style" property) onto our input
+  // Sync canvas style settings from Bubble's Property Editor onto $input and $list
   instance.data.syncFont = function() {
-    const cs = window.getComputedStyle(instance.canvas);
+    if (!instance.canvas) return;
+    const canvasEl = instance.canvas[0] || instance.canvas;
+    const cs = window.getComputedStyle(canvasEl);
+
     $input.css({
       fontFamily: cs.fontFamily,
       fontSize: cs.fontSize,
       fontWeight: cs.fontWeight,
-      color: cs.color
+      fontStyle: cs.fontStyle,
+      color: cs.color,
+      textAlign: cs.textAlign
     });
+
     $list.css({
       fontFamily: cs.fontFamily,
       fontSize: cs.fontSize
     });
   };
 
-  // Helper to extract display label from option (supports Bubble Thing objects & primitive strings)
+  // Robust label extraction for custom data types, Option Sets, strings, numbers
   instance.data.getItemLabel = function(item) {
     if (item === null || item === undefined) return '';
-    if (typeof item === 'object' && typeof item.get === 'function') {
-      const field = instance.data.captionField;
-      if (field) {
-        const val = item.get(field);
-        return val !== null && val !== undefined ? String(val) : '';
+    if (typeof item === 'string' || typeof item === 'number') return String(item);
+
+    if (typeof item === 'object') {
+      if (typeof item.get === 'function') {
+        const field = instance.data.captionField;
+        if (field) {
+          try {
+            const val = item.get(field);
+            if (val !== null && val !== undefined && String(val).trim() !== '') return String(val);
+          } catch (e) { /* ignore */ }
+        }
+        try {
+          const display = item.get('display');
+          if (display !== null && display !== undefined && String(display).trim() !== '') return String(display);
+        } catch (e) { /* ignore */ }
+
+        try {
+          const name = item.get('name') || item.get('_id');
+          if (name !== null && name !== undefined && String(name).trim() !== '') return String(name);
+        } catch (e) { /* ignore */ }
       }
-      return String(item);
+
+      if (item.display !== undefined && item.display !== null) return String(item.display);
+      if (item.name !== undefined && item.name !== null) return String(item.name);
+      if (item.value !== undefined && item.value !== null) return String(item.value);
     }
+
     return String(item);
   };
 
-  // Helper to extract unique ID from option
-  instance.data.getItemId = function(item) {
-    if (item === null || item === undefined) return '';
-    if (typeof item === 'object' && typeof item.get === 'function') {
-      const id = item.get('_id');
-      if (id) return String(id);
-    }
-    return String(item);
-  };
-
-  // Calculate position & viewport bounds (flip dropdown above if needed)
+  // Calculate floating listbox position relative to input/canvas
   instance.data.positionList = function() {
-    const rect = $input[0].getBoundingClientRect();
-    $list.css({ top: rect.bottom + 4 + 'px', left: rect.left + 'px', width: rect.width + 'px' });
+    const inputEl = $input[0];
+    const rect = inputEl ? inputEl.getBoundingClientRect() : { top: 0, bottom: 0, left: 0, width: 200 };
+    const canvasEl = instance.canvas[0] || instance.canvas;
+    const canvasRect = canvasEl ? canvasEl.getBoundingClientRect() : rect;
+
+    const width = Math.max(rect.width || 0, canvasRect.width || 0, 160);
+    const left = rect.left > 0 ? rect.left : canvasRect.left;
+    const top = rect.bottom > 0 ? rect.bottom + 4 : canvasRect.bottom + 4;
+
+    $list.css({
+      top: top + 'px',
+      left: left + 'px',
+      minWidth: width + 'px',
+      width: width + 'px'
+    });
   };
 
   instance.data.open = function() {
@@ -106,7 +135,9 @@ function(instance, context) {
       const $el = $items.eq(idx);
       $el.addClass('cb-item-active');
       $input.attr('aria-activedescendant', $el.attr('id'));
-      $el[0].scrollIntoView({ block: 'nearest' });
+      if ($el[0] && typeof $el[0].scrollIntoView === 'function') {
+        $el[0].scrollIntoView({ block: 'nearest' });
+      }
     }
   };
 
@@ -125,6 +156,7 @@ function(instance, context) {
     instance.data.selectedThing = null;
     $clear.toggle(false);
     instance.publishState('value', null);
+    instance.publishState('search_term', '');
     instance.triggerEvent('value_changed');
     instance.data.renderOptions('');
     $input.trigger('focus');
@@ -134,7 +166,7 @@ function(instance, context) {
   instance.data.renderOptions = function(query) {
     const things = instance.data.things || [];
 
-    const q = (query || '').toLowerCase();
+    const q = (query || '').trim().toLowerCase();
     const filtered = q
       ? things.filter(t => instance.data.getItemLabel(t).toLowerCase().includes(q))
       : things.slice();
@@ -174,18 +206,23 @@ function(instance, context) {
     });
 
     instance.data.open();
-    instance.data.setActive(preselectIdx);
+    instance.data.setActive(preselectIdx >= 0 ? preselectIdx : 0);
   };
 
   // --- Events ---
   $input.on('focus', function() {
-    instance.data.renderOptions(''); // always show full list on focus
+    instance.data.syncFont();
+    instance.data.renderOptions('');
   });
 
   $input.on('input', function() {
     const val = $(this).val();
     instance.publishState('search_term', val);
-    if (!val) { instance.data.selectedThing = null; $clear.toggle(false); instance.publishState('value', null); }
+    if (!val) {
+      instance.data.selectedThing = null;
+      $clear.toggle(false);
+      instance.publishState('value', null);
+    }
     instance.data.renderOptions(val);
   });
 
@@ -195,13 +232,21 @@ function(instance, context) {
       return;
     }
     const max = instance.data.filtered.length - 1;
-    if (e.key === 'ArrowDown') { e.preventDefault(); instance.data.setActive(Math.min(instance.data.activeIndex + 1, max)); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); instance.data.setActive(Math.max(instance.data.activeIndex - 1, 0)); }
-    else if (e.key === 'Enter') {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      instance.data.setActive(Math.min(instance.data.activeIndex + 1, max));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      instance.data.setActive(Math.max(instance.data.activeIndex - 1, 0));
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       const idx = instance.data.activeIndex;
-      if (idx >= 0 && instance.data.filtered[idx]) instance.data.selectItem(instance.data.filtered[idx]);
-    } else if (e.key === 'Escape') { instance.data.close(); }
+      if (idx >= 0 && instance.data.filtered[idx]) {
+        instance.data.selectItem(instance.data.filtered[idx]);
+      }
+    } else if (e.key === 'Escape') {
+      instance.data.close();
+    }
   });
 
   $input.on('blur', function() {
