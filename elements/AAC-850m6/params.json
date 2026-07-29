@@ -1,0 +1,88 @@
+{
+    "add_hover_pressed": true,
+    "add_is_visible": true,
+    "autobinding_is_list": false,
+    "can_fit_height": true,
+    "can_fit_width": true,
+    "category": "input forms",
+    "default_dim": {
+        "height": 40,
+        "width": 225
+    },
+    "display": "Combobox",
+    "events": {
+        "AAJ": {
+            "caption": "combobox_value_changed",
+            "doc": "",
+            "name": "value_changed"
+        }
+    },
+    "fields": {
+        "AAD": {
+            "caption": "options_type",
+            "doc": "",
+            "editor": "custom_type",
+            "name": "options_type",
+            "rank": 0
+        },
+        "AAE": {
+            "caption": "options_list",
+            "doc": "",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "options_list",
+            "rank": 1,
+            "value": "custom_data_AAD"
+        },
+        "AAF": {
+            "caption": "caption_field",
+            "doc": "",
+            "editor": "custom_field_AAD",
+            "name": "caption_field",
+            "rank": 2
+        },
+        "AAG": {
+            "caption": "placeholder",
+            "default_val": "Select option",
+            "doc": "",
+            "editor": "StaticText",
+            "in_style": true,
+            "name": "placeholder",
+            "optional": true,
+            "rank": 3
+        }
+    },
+    "has_reset_fn": true,
+    "icon": "ion-android-arrow-dropdown",
+    "platform_type": "web",
+    "property_applications": {
+        "Background": true,
+        "Border": true,
+        "BoxShadow": true,
+        "Font": true,
+        "MinWidth": true,
+        "Padding": true,
+        "resizable": true
+    },
+    "states": {
+        "AAH": {
+            "caption": "value",
+            "doc": "",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "value",
+            "value": "custom_data_AAD"
+        },
+        "AAI": {
+            "caption": "search_term",
+            "doc": "",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "search_term",
+            "value": "text"
+        }
+    },
+    "support_autobinding": false
+}
