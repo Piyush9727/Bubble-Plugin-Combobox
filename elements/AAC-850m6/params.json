@@ -73,7 +73,6 @@
         "Font": true,
         "MinWidth": true,
         "Padding": true,
-        "Responsive": true,
         "resizable": true
     },
     "states": {
