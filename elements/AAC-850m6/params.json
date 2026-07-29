@@ -61,6 +61,16 @@
             "name": "no_results_text",
             "optional": true,
             "rank": 4
+        },
+        "AAL": {
+            "caption": "border_radius",
+            "default_val": 6,
+            "doc": "Border radius of the input in pixels.",
+            "editor": "StaticNumber",
+            "in_style": true,
+            "name": "border_radius",
+            "optional": true,
+            "rank": 5
         }
     },
     "has_reset_fn": true,

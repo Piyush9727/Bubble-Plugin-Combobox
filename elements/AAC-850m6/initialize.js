@@ -26,7 +26,8 @@ function(instance, context) {
       <input type="text" class="cb-input" autocomplete="off" spellcheck="false"
         role="combobox" aria-autocomplete="list" aria-expanded="false"
         aria-controls="${uid}-listbox" id="${uid}-input" />
-      <button type="button" class="cb-clear" tabindex="-1" aria-label="Clear">&times;</button>
+      <button type="button" class="cb-clear" tabindex="-1" aria-label="Clear" style="right:24px;">&times;</button>
+      <div class="cb-arrow" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); pointer-events:none; opacity:0.5; font-size:9px; display:flex; flex-direction:column; align-items:center; line-height:0.7;">▲<span style="margin-top:-2px;">▼</span></div>
     </div>
   `).appendTo(instance.canvas);
 
@@ -213,6 +214,13 @@ function(instance, context) {
   $input.on('focus', function() {
     instance.data.syncFont();
     instance.data.renderOptions('');
+  });
+
+  $input.on('click', function() {
+    if (!instance.data.isOpen) {
+      instance.data.syncFont();
+      instance.data.renderOptions('');
+    }
   });
 
   $input.on('input', function() {
