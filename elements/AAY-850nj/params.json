@@ -13,7 +13,7 @@
     "events": {
         "AAM": {
             "caption": "combobox_value_changed",
-            "doc": "Fired when the user selects a value in the combobox.",
+            "doc": "Fired when the user selects or deselects a value.",
             "name": "value_changed"
         }
     },
@@ -28,7 +28,7 @@
         },
         "AAQ": {
             "caption": "placeholder",
-            "default_val": "Select option",
+            "default_val": "Select options",
             "doc": "Placeholder text when no value is selected.",
             "editor": "StaticText",
             "in_style": true,
@@ -59,7 +59,7 @@
         "AAT": {
             "caption": "selected_bg_color",
             "default_val": "rgba(79, 70, 229, 1)",
-            "doc": "Background color of the selected option row.",
+            "doc": "Background color of chips and selected option rows.",
             "editor": "Color",
             "in_style": true,
             "name": "selected_bg_color",
@@ -81,6 +81,36 @@
             "name": "options_list",
             "rank": 1,
             "value": "custom_data_AAD"
+        },
+        "ABA": {
+            "caption": "selected_text_color",
+            "default_val": "rgba(255, 255, 255, 1)",
+            "doc": "Text and checkmark color of chips and selected rows.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "selected_text_color",
+            "optional": true,
+            "rank": 7
+        },
+        "ABB": {
+            "caption": "max_selections",
+            "default_val": 0,
+            "doc": "Maximum number of items that can be selected. 0 means unlimited.",
+            "editor": "StaticNumber",
+            "in_style": true,
+            "name": "max_selections",
+            "optional": true,
+            "rank": 8
+        },
+        "ABC": {
+            "caption": "default_values",
+            "doc": "Pre-selected values shown when the element loads.",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "default_values",
+            "optional": true,
+            "rank": 9,
+            "value": "custom_data_AAD"
         }
     },
     "has_reset_fn": true,
@@ -98,10 +128,11 @@
     "states": {
         "AAW": {
             "caption": "value",
-            "doc": "The currently selected item object or value.",
+            "doc": "The list of currently selected items.",
             "initialization_code": {
                 "fn": "function(properties, context) {\n\n\n\n}"
             },
+            "is_list": true,
             "name": "value",
             "value": "custom_data_AAD"
         },
@@ -113,6 +144,15 @@
             },
             "name": "search_term",
             "value": "text"
+        },
+        "AAY": {
+            "caption": "value_count",
+            "doc": "The number of currently selected items.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "value_count",
+            "value": "number"
         }
     },
     "support_autobinding": false

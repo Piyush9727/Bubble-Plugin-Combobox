@@ -1,29 +1,40 @@
 function(instance, properties, context) {
-  instance.data.$input.attr('placeholder', properties.placeholder || '');
   if (typeof instance.data.syncFont === 'function') {
     instance.data.syncFont();
   }
 
-  // Border radius
+  // ── Sync config values into instance.data so other functions can read them
+  instance.data.placeholder    = properties.placeholder    || 'Select options';
+  instance.data.noResultsText  = properties.no_results_text || 'No options found';
+  instance.data.maxSelections  = properties.max_selections  || 0;
+  instance.data.captionField   = properties.caption_field;
+
+  // Update placeholder only when nothing is selected
+  if (instance.data.$searchInput && instance.data.selectedThings && instance.data.selectedThings.length === 0) {
+    instance.data.$searchInput.attr('placeholder', instance.data.placeholder);
+  }
+
+  // ── Border radius ────────────────────────────────────────────────────────
   const borderRadius = (properties.border_radius !== undefined && properties.border_radius !== null)
     ? properties.border_radius + 'px'
     : '6px';
-  if (instance.data.$container) {
-    instance.data.$container.css('border-radius', borderRadius);
-  }
   if (instance.canvas && typeof instance.canvas.css === 'function') {
     instance.canvas.css('border-radius', borderRadius);
   }
 
-  // Selected row colors — applied as CSS custom properties on the list element
-  if (instance.data.$list) {
-    const selBg   = properties.selected_bg_color   || 'rgba(79, 70, 229, 1)';
-    const selText = properties.selected_text_color  || 'rgba(255, 255, 255, 1)';
-    instance.data.$list[0].style.setProperty('--cb-sel-bg',   selBg);
-    instance.data.$list[0].style.setProperty('--cb-sel-text', selText);
+  // ── Selection colors — CSS custom properties on both chips and list ──────
+  const selBg   = properties.selected_bg_color   || 'rgba(79, 70, 229, 1)';
+  const selText = properties.selected_text_color  || 'rgba(255, 255, 255, 1)';
+  if (instance.data.$list && instance.data.$list[0]) {
+    instance.data.$list[0].style.setProperty('--ms-sel-bg',   selBg);
+    instance.data.$list[0].style.setProperty('--ms-sel-text', selText);
+  }
+  if (instance.data.$tagsWrapper && instance.data.$tagsWrapper[0]) {
+    instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-bg',   selBg);
+    instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-text', selText);
   }
 
-  // Options list
+  // ── Options list ─────────────────────────────────────────────────────────
   let things = [];
   if (properties.options_list && typeof properties.options_list.length === 'function') {
     try {
@@ -31,43 +42,56 @@ function(instance, properties, context) {
       things = properties.options_list.get(0, count);
     } catch (err) {
       if (err && err.message === 'not ready') throw err;
-      console.warn('Combobox options_list read error:', err);
+      console.warn('MultiSelect options_list read error:', err);
     }
   } else if (Array.isArray(properties.options_list)) {
     things = properties.options_list;
   }
   instance.data.things = things;
-  instance.data.captionField = properties.caption_field;
 
-  // Default value — auto-select if nothing is selected yet
+  // ── Default values — pre-select if nothing selected yet ──────────────────
   if (
-    properties.default_value !== undefined &&
-    properties.default_value !== null &&
-    instance.data.selectedThing === null &&
-    typeof instance.data.getItemLabel === 'function' &&
-    typeof instance.data.selectItem === 'function'
+    instance.data.selectedThings &&
+    instance.data.selectedThings.length === 0 &&
+    properties.default_values &&
+    typeof instance.data.getItemLabel === 'function'
   ) {
-    const defVal = properties.default_value;
-    // Try to find the matching item from the list
-    const match = things.find(t => {
+    let defaults = [];
+    if (typeof properties.default_values.length === 'function') {
       try {
-        const tKey = typeof instance.data.getKey === 'function' ? instance.data.getKey(t) : null;
-        const dKey = typeof instance.data.getKey === 'function' ? instance.data.getKey(defVal) : null;
-        if (tKey && dKey) return tKey === dKey;
-        return instance.data.getItemLabel(t) === instance.data.getItemLabel(defVal);
-      } catch (e) { return false; }
-    });
-    if (match !== undefined) {
-      // Use selectItem but keep list closed
-      const label = instance.data.getItemLabel(match);
-      instance.data.$input.val(label);
-      instance.data.selectedThing = match;
-      if (instance.data.$clear) instance.data.$clear.toggle(true);
-      instance.publishState('value', match);
+        const count = properties.default_values.length();
+        defaults = properties.default_values.get(0, count);
+      } catch (e) { /* ignore */ }
+    } else if (Array.isArray(properties.default_values)) {
+      defaults = properties.default_values;
+    }
+
+    if (defaults.length > 0 && things.length > 0) {
+      const matched = [];
+      defaults.forEach(function(defVal) {
+        const match = things.find(function(t) {
+          try {
+            const tKey = instance.data.getKey(t);
+            const dKey = instance.data.getKey(defVal);
+            if (tKey && dKey) return tKey === dKey;
+            return instance.data.getItemLabel(t) === instance.data.getItemLabel(defVal);
+          } catch (e) { return false; }
+        });
+        if (match !== undefined) matched.push(match);
+      });
+      if (matched.length > 0) {
+        instance.data.selectedThings = matched;
+        if (typeof instance.data.renderChips === 'function') instance.data.renderChips();
+        instance.publishState('value', matched);
+        instance.publishState('value_count', matched.length);
+      }
     }
   }
 
+  // Re-render dropdown if it's currently open
   if (instance.data.isOpen && typeof instance.data.renderOptions === 'function') {
-    instance.data.renderOptions(instance.data.$input.val());
+    instance.data.renderOptions(
+      instance.data.$searchInput ? instance.data.$searchInput.val() : ''
+    );
   }
 }
