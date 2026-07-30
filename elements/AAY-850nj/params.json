@@ -108,7 +108,7 @@
             "name": "default_values",
             "optional": true,
             "rank": 5,
-            "value": "custom_data_AAD"
+            "value": "custom_data_AAU"
         },
         "ABD": {
             "caption": "placeholder_color",
