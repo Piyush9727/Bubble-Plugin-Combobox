@@ -61,8 +61,9 @@ function(instance, properties, context) {
   }
   instance.data.things = things;
 
-  // ── Default values — pre-select if nothing selected yet ──────────────────
+  // ── Default values — pre-select ONCE on initial load ──────────────────
   if (
+    !instance.data.hasInitializedDefaults &&
     instance.data.selectedThings &&
     instance.data.selectedThings.length === 0 &&
     properties.default_values &&
@@ -97,6 +98,7 @@ function(instance, properties, context) {
         instance.publishState('value', matched);
         instance.publishState('value_count', matched.length);
       }
+      instance.data.hasInitializedDefaults = true;
     }
   }
 

@@ -130,7 +130,7 @@
             "caption": "value",
             "doc": "The currently selected item object or value.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  return properties.default_value || null;\n}"
             },
             "name": "value",
             "value": "custom_data_AAD"
@@ -139,7 +139,7 @@
             "caption": "search_term",
             "doc": "The search term entered by the user.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  return \"\";\n}"
             },
             "name": "search_term",
             "value": "text"
@@ -148,7 +148,7 @@
             "caption": "is_valid",
             "doc": "True when the element passes validation.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  if (properties.is_required) {\n    return properties.default_value !== undefined && properties.default_value !== null;\n  }\n  return true;\n}"
             },
             "name": "is_valid",
             "value": "boolean"
@@ -157,7 +157,7 @@
             "caption": "is_focused",
             "doc": "True when the input is currently focused.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  return false;\n}"
             },
             "name": "is_focused",
             "value": "boolean"

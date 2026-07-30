@@ -1,5 +1,6 @@
 function(instance, context) {
   if (!instance.data) return;
+  instance.data.hasInitializedDefaults = false;
   if (typeof instance.data.clearAll === 'function') {
     instance.data.clearAll();
   } else {

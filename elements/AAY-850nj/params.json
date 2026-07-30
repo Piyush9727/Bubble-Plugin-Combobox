@@ -148,7 +148,7 @@
             "caption": "value",
             "doc": "The list of currently selected items.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  if (properties.default_values && typeof properties.default_values.get === 'function') {\n    try {\n      var count = properties.default_values.length();\n      return properties.default_values.get(0, count);\n    } catch (e) {}\n  }\n  return properties.default_values || [];\n}"
             },
             "is_list": true,
             "name": "value",
@@ -158,7 +158,7 @@
             "caption": "search_term",
             "doc": "The current search text in the dropdown search bar.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  return \"\";\n}"
             },
             "name": "search_term",
             "value": "text"
@@ -167,7 +167,7 @@
             "caption": "value_count",
             "doc": "The number of currently selected items.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  if (properties.default_values && typeof properties.default_values.length === 'function') {\n    try { return properties.default_values.length(); } catch (e) {}\n  }\n  if (Array.isArray(properties.default_values)) return properties.default_values.length;\n  return 0;\n}"
             },
             "name": "value_count",
             "value": "number"
@@ -176,7 +176,7 @@
             "caption": "is_valid",
             "doc": "True when the element passes validation.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  if (properties.is_required) {\n    var count = 0;\n    if (properties.default_values && typeof properties.default_values.length === 'function') {\n      try { count = properties.default_values.length(); } catch (e) {}\n    } else if (Array.isArray(properties.default_values)) {\n      count = properties.default_values.length;\n    }\n    return count > 0;\n  }\n  return true;\n}"
             },
             "name": "is_valid",
             "value": "boolean"
@@ -185,7 +185,7 @@
             "caption": "is_focused",
             "doc": "True when the input is currently focused.",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
+                "fn": "function(properties, context) {\n  return false;\n}"
             },
             "name": "is_focused",
             "value": "boolean"

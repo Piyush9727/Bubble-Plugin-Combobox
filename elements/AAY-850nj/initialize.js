@@ -10,8 +10,9 @@ function(instance, context) {
   instance.data.filtered       = [];
   instance.data.isOpen         = false;
   instance.data.maxSelections  = 0;
-  instance.data.isRequired     = false;
-  instance.data.placeholder    = 'Select options';
+  instance.data.isRequired             = false;
+  instance.data.hasInitializedDefaults = false;
+  instance.data.placeholder            = 'Select options';
   instance.data.noResultsText  = 'No options found';
 
   // ── Key helper ──────────────────────────────────────────────────────────
@@ -292,6 +293,7 @@ function(instance, context) {
 
   // ── Toggle item in / out of selection ────────────────────────────────────
   instance.data.toggleItem = function(t) {
+    instance.data.hasInitializedDefaults = true;
     var key = instance.data.getKey(t);
     var idx = instance.data.selectedThings.findIndex(function(s) { return instance.data.getKey(s) === key; });
     if (idx >= 0) {
@@ -311,6 +313,7 @@ function(instance, context) {
 
   // ── Remove single item (chip × button) ───────────────────────────────────
   instance.data.deselectItem = function(t) {
+    instance.data.hasInitializedDefaults = true;
     var key = instance.data.getKey(t);
     instance.data.selectedThings = instance.data.selectedThings.filter(function(s) {
       return instance.data.getKey(s) !== key;
@@ -325,6 +328,7 @@ function(instance, context) {
 
   // ── Clear all selections ──────────────────────────────────────────────────
   instance.data.clearAll = function() {
+    instance.data.hasInitializedDefaults = true;
     instance.data.selectedThings = [];
     instance.data.renderChips();
     instance.publishState('value', []);

@@ -8,8 +8,9 @@ function(instance, context) {
   instance.data.activeIndex   = -1;
   instance.data.filtered      = [];
   instance.data.isOpen        = false;
-  instance.data.isRequired    = false;
-  instance.data.currentQuery  = '';
+  instance.data.isRequired            = false;
+  instance.data.hasInitializedDefault = false;
+  instance.data.currentQuery          = '';
 
   // Scoped <style> tag for ::placeholder color
   const $scopedStyle = $('<style>').attr('id', uid + '-pstyle').appendTo('head');
@@ -194,6 +195,7 @@ function(instance, context) {
   };
 
   instance.data.selectItem = function(t) {
+    instance.data.hasInitializedDefault = true;
     const label = instance.data.getItemLabel(t);
     $input.val(label);
     instance.data.selectedThing = t;
@@ -205,6 +207,7 @@ function(instance, context) {
   };
 
   instance.data.clearSelection = function() {
+    instance.data.hasInitializedDefault = true;
     $input.val('');
     instance.data.selectedThing = null;
     $clear.toggle(false);

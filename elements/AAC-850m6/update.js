@@ -39,8 +39,9 @@ function(instance, properties, context) {
   }
   instance.data.things = things;
 
-  // Default value — auto-select if nothing is selected yet
+  // Default value — auto-select ONCE on initial load
   if (
+    !instance.data.hasInitializedDefault &&
     properties.default_value !== undefined &&
     properties.default_value !== null &&
     instance.data.selectedThing === null &&
@@ -62,6 +63,7 @@ function(instance, properties, context) {
       if (instance.data.$clear) instance.data.$clear.toggle(true);
       instance.publishState('value', match);
     }
+    instance.data.hasInitializedDefault = true;
   }
 
   // Update validation state
