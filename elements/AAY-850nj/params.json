@@ -18,14 +18,6 @@
         }
     },
     "fields": {
-        "AAP": {
-            "caption": "caption_field",
-            "doc": "The field to display as the text caption for each option.",
-            "editor": "custom_field_AAD",
-            "name": "caption_field",
-            "optional": true,
-            "rank": 2
-        },
         "AAQ": {
             "caption": "placeholder",
             "default_val": "Select options",
@@ -66,21 +58,28 @@
             "optional": true,
             "rank": 6
         },
-        "AAU": {
+        "AAZ": {
             "caption": "options_type",
-            "doc": "The data type of options in the dropdown list.",
+            "doc": "",
             "editor": "custom_type",
             "name": "options_type",
-            "rank": 0
+            "rank": 7
         },
-        "AAV": {
+        "AAa": {
             "caption": "options_list",
-            "doc": "The list of items to display in the dropdown.",
+            "doc": "",
             "editor": "DynamicValue",
             "is_list": true,
             "name": "options_list",
-            "rank": 1,
-            "value": "custom_data_AAD"
+            "rank": 8,
+            "value": "custom_data_AAZ"
+        },
+        "AAb": {
+            "caption": "caption_field",
+            "doc": "",
+            "editor": "custom_field_AAZ",
+            "name": "caption_field",
+            "rank": 9
         },
         "ABA": {
             "caption": "selected_text_color",
