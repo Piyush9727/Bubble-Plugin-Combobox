@@ -25,7 +25,11 @@ function(instance, properties, context) {
     instance.data.$container.css('border-radius', borderRadius);
   }
   if (instance.canvas && typeof instance.canvas.css === 'function') {
-    instance.canvas.css('border-radius', borderRadius);
+    instance.canvas.css({
+      'border-radius': borderRadius,
+      'display': 'flex',
+      'align-items': 'center'
+    });
   }
 
   // Options list

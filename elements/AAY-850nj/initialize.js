@@ -78,6 +78,13 @@ function(instance, context) {
     '</div>'
   ].join('')).appendTo(instance.canvas);
 
+  if (instance.canvas && typeof instance.canvas.css === 'function') {
+    instance.canvas.css({
+      display: 'flex',
+      alignItems: 'center'
+    });
+  }
+
   var $tagsWrapper = $wrapper.find('.ms-tags-wrapper');
   var $clearAll    = $wrapper.find('.ms-clear-all');
   var $toggle      = $wrapper.find('.ms-toggle');

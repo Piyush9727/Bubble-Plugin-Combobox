@@ -36,6 +36,13 @@ function(instance, context) {
     </div>
   `).appendTo(instance.canvas);
 
+  if (instance.canvas && typeof instance.canvas.css === 'function') {
+    instance.canvas.css({
+      display: 'flex',
+      alignItems: 'center'
+    });
+  }
+
   const $input = $container.find('.cb-input');
   const $clear = $container.find('.cb-clear');
 
