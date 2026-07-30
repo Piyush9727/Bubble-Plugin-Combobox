@@ -35,7 +35,7 @@
             "in_style": true,
             "name": "placeholder",
             "optional": true,
-            "rank": 3
+            "rank": 5
         },
         "AAh": {
             "caption": "no_results_text",
@@ -45,7 +45,7 @@
             "in_style": true,
             "name": "no_results_text",
             "optional": true,
-            "rank": 4
+            "rank": 7
         },
         "AAi": {
             "caption": "selected_bg_color",
@@ -55,7 +55,7 @@
             "in_style": true,
             "name": "selected_bg_color",
             "optional": true,
-            "rank": 8
+            "rank": 10
         },
         "AAj": {
             "caption": "options_type",
@@ -78,7 +78,7 @@
             "doc": "",
             "editor": "custom_field_AAU",
             "name": "caption_field",
-            "rank": 2
+            "rank": 3
         },
         "AAm": {
             "caption": "selected_text_color",
@@ -88,7 +88,7 @@
             "in_style": true,
             "name": "selected_text_color",
             "optional": true,
-            "rank": 9
+            "rank": 11
         },
         "AAn": {
             "caption": "max_selections",
@@ -98,7 +98,7 @@
             "in_style": true,
             "name": "max_selections",
             "optional": true,
-            "rank": 4
+            "rank": 8
         },
         "AAo": {
             "caption": "default_values",
@@ -107,7 +107,7 @@
             "is_list": true,
             "name": "default_values",
             "optional": true,
-            "rank": 5,
+            "rank": 9,
             "value": "custom_data_AAU"
         },
         "AAp": {
@@ -118,7 +118,7 @@
             "in_style": true,
             "name": "placeholder_color",
             "optional": true,
-            "rank": 10
+            "rank": 12
         },
         "AAq": {
             "caption": "is_required",
@@ -128,7 +128,16 @@
             "in_style": false,
             "name": "is_required",
             "optional": true,
-            "rank": 11
+            "rank": 6
+        },
+        "AAx": {
+            "caption": "avatar_field",
+            "doc": "",
+            "editor": "custom_field_AAj",
+            "field_type_restriction": "text_image_file",
+            "name": "avatar_field",
+            "optional": false,
+            "rank": 4
         }
     },
     "has_reset_fn": true,
