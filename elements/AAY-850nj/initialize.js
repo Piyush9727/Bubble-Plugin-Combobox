@@ -239,15 +239,17 @@ function(instance, context) {
   instance.data.open = function() {
     instance.data.syncStyles();
     instance.data.positionDropdown();
-    instance.data.isOpen = true;
+    if (!instance.data.isOpen) {
+      instance.data.isOpen = true;
+      // Lock body scroll while dropdown is open
+      instance.data._prevOverflow     = document.body.style.overflow;
+      instance.data._prevPaddingRight = document.body.style.paddingRight;
+      var sbw = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
+    }
     $dropdown.addClass('ms-dropdown-open');
     $wrapper.attr('aria-expanded', 'true');
-    // Lock body scroll while dropdown is open
-    instance.data._prevOverflow     = document.body.style.overflow;
-    instance.data._prevPaddingRight = document.body.style.paddingRight;
-    var sbw = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = 'hidden';
-    if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
     // Clear search and populate full list, then focus search bar
     $searchInput.val('');
     instance.publishState('search_term', '');
@@ -256,6 +258,7 @@ function(instance, context) {
   };
 
   instance.data.close = function() {
+    if (!instance.data.isOpen) return;
     instance.data.isOpen = false;
     $dropdown.removeClass('ms-dropdown-open');
     $wrapper.attr('aria-expanded', 'false');
@@ -263,8 +266,8 @@ function(instance, context) {
     instance.publishState('search_term', '');
     instance.data.activeIndex = -1;
     // Restore body scroll
-    document.body.style.overflow     = instance.data._prevOverflow     || '';
-    document.body.style.paddingRight = instance.data._prevPaddingRight || '';
+    document.body.style.overflow     = instance.data._prevOverflow     !== undefined ? instance.data._prevOverflow     : '';
+    document.body.style.paddingRight = instance.data._prevPaddingRight !== undefined ? instance.data._prevPaddingRight : '';
   };
 
   // ── Keyboard active item ──────────────────────────────────────────────────

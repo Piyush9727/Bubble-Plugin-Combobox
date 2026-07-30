@@ -124,26 +124,29 @@ function(instance, context) {
   };
 
   instance.data.open = function() {
-    instance.data.isOpen = true;
+    if (!instance.data.isOpen) {
+      instance.data.isOpen = true;
+      // Lock body scroll while dropdown is open
+      instance.data._prevOverflow = document.body.style.overflow;
+      instance.data._prevPaddingRight = document.body.style.paddingRight;
+      var sbw = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
+    }
     instance.data.positionList();
     $list.addClass('cb-list-open');
     $input.attr('aria-expanded', 'true');
-    // Lock body scroll while dropdown is open
-    instance.data._prevOverflow = document.body.style.overflow;
-    var sbw = window.innerWidth - document.documentElement.clientWidth;
-    instance.data._prevPaddingRight = document.body.style.paddingRight;
-    document.body.style.overflow = 'hidden';
-    if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
   };
 
   instance.data.close = function() {
+    if (!instance.data.isOpen) return;
     instance.data.isOpen = false;
     $list.removeClass('cb-list-open');
     $input.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
     instance.data.activeIndex = -1;
     // Restore body scroll
-    document.body.style.overflow = instance.data._prevOverflow || '';
-    document.body.style.paddingRight = instance.data._prevPaddingRight || '';
+    document.body.style.overflow = instance.data._prevOverflow !== undefined ? instance.data._prevOverflow : '';
+    document.body.style.paddingRight = instance.data._prevPaddingRight !== undefined ? instance.data._prevPaddingRight : '';
   };
 
   instance.data.setActive = function(idx) {
