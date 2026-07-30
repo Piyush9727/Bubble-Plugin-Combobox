@@ -18,14 +18,6 @@
         }
     },
     "fields": {
-        "AAP": {
-            "caption": "caption_field",
-            "doc": "The field to display as the text caption for each option.",
-            "editor": "custom_field_AAD",
-            "name": "caption_field",
-            "optional": true,
-            "rank": 2
-        },
         "AAQ": {
             "caption": "placeholder",
             "default_val": "Select options",
@@ -80,7 +72,14 @@
             "is_list": true,
             "name": "options_list",
             "rank": 1,
-            "value": "custom_data_AAD"
+            "value": "custom_data_AAU"
+        },
+        "AAc": {
+            "caption": "caption_field",
+            "doc": "",
+            "editor": "custom_field_AAU",
+            "name": "caption_field",
+            "rank": 10
         },
         "ABA": {
             "caption": "selected_text_color",
