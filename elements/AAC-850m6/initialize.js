@@ -1,13 +1,19 @@
 function(instance, context) {
   const uid = 'cb-' + Math.random().toString(36).substring(2, 9);
 
-  instance.data.uid = uid;
-  instance.data.things = [];
-  instance.data.captionField = null;
+  instance.data.uid           = uid;
+  instance.data.things        = [];
+  instance.data.captionField  = null;
   instance.data.selectedThing = null;
-  instance.data.activeIndex = -1;
-  instance.data.filtered = [];
-  instance.data.isOpen = false;
+  instance.data.activeIndex   = -1;
+  instance.data.filtered      = [];
+  instance.data.isOpen        = false;
+  instance.data.isRequired    = false;
+  instance.data.currentQuery  = '';
+
+  // Scoped <style> tag for ::placeholder color
+  const $scopedStyle = $('<style>').attr('id', uid + '-pstyle').appendTo('head');
+  instance.data.$scopedStyle = $scopedStyle;
 
   // Unique key helper
   instance.data.getKey = function(t) {
@@ -36,9 +42,18 @@ function(instance, context) {
   const $list = $(`<ul class="cb-list" id="${uid}-listbox" role="listbox"></ul>`).appendTo('body');
 
   instance.data.$container = $container;
-  instance.data.$input = $input;
-  instance.data.$clear = $clear;
-  instance.data.$list = $list;
+  instance.data.$input     = $input;
+  instance.data.$clear     = $clear;
+  instance.data.$list      = $list;
+
+  // Validation state updater
+  instance.data.updateValidation = function() {
+    const isReq = !!instance.data.isRequired;
+    const hasVal = instance.data.selectedThing !== null && instance.data.selectedThing !== undefined;
+    const isValid = isReq ? hasVal : true;
+    instance.publishState('is_valid', isValid);
+    return isValid;
+  };
 
   // Sync canvas style settings from Bubble's Property Editor onto $input and $list
   instance.data.syncFont = function() {
@@ -46,18 +61,25 @@ function(instance, context) {
     const canvasEl = instance.canvas[0] || instance.canvas;
     const cs = window.getComputedStyle(canvasEl);
 
+    const bg = cs.backgroundColor;
+    const color = cs.color;
+    const isTransparent = (bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)');
+    const dropdownBg = isTransparent ? '#ffffff' : bg;
+
     $input.css({
       fontFamily: cs.fontFamily,
-      fontSize: cs.fontSize,
+      fontSize:   cs.fontSize,
       fontWeight: cs.fontWeight,
-      fontStyle: cs.fontStyle,
-      color: cs.color,
-      textAlign: cs.textAlign
+      fontStyle:  cs.fontStyle,
+      color:      cs.color,
+      textAlign:  cs.textAlign
     });
 
     $list.css({
-      fontFamily: cs.fontFamily,
-      fontSize: cs.fontSize
+      fontFamily:      cs.fontFamily,
+      fontSize:        cs.fontSize,
+      backgroundColor: dropdownBg,
+      color:           color
     });
   };
 
@@ -87,8 +109,8 @@ function(instance, context) {
       }
 
       if (item.display !== undefined && item.display !== null) return String(item.display);
-      if (item.name !== undefined && item.name !== null) return String(item.name);
-      if (item.value !== undefined && item.value !== null) return String(item.value);
+      if (item.name    !== undefined && item.name    !== null) return String(item.name);
+      if (item.value   !== undefined && item.value   !== null) return String(item.value);
     }
 
     return String(item);
@@ -124,6 +146,8 @@ function(instance, context) {
   };
 
   instance.data.open = function() {
+    instance.data.syncFont();
+    instance.data.positionList();
     if (!instance.data.isOpen) {
       instance.data.isOpen = true;
       // Lock body scroll while dropdown is open
@@ -133,7 +157,6 @@ function(instance, context) {
       document.body.style.overflow = 'hidden';
       if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
     }
-    instance.data.positionList();
     $list.addClass('cb-list-open');
     $input.attr('aria-expanded', 'true');
   };
@@ -169,6 +192,7 @@ function(instance, context) {
     instance.data.selectedThing = t;
     $clear.toggle(true);
     instance.publishState('value', t);
+    instance.data.updateValidation();
     instance.triggerEvent('value_changed');
     instance.data.close();
   };
@@ -179,6 +203,7 @@ function(instance, context) {
     $clear.toggle(false);
     instance.publishState('value', null);
     instance.publishState('search_term', '');
+    instance.data.updateValidation();
     instance.triggerEvent('value_changed');
     instance.data.renderOptions('');
     $input.trigger('focus');
@@ -187,7 +212,6 @@ function(instance, context) {
   // Single source of truth for rendering the option list
   instance.data.renderOptions = function(query) {
     const things = instance.data.things || [];
-    // Track the last user-typed query so update.js can re-render correctly
     instance.data.currentQuery = query || '';
 
     const q = instance.data.currentQuery.trim().toLowerCase();
@@ -235,14 +259,15 @@ function(instance, context) {
 
   // --- Events ---
   $input.on('focus', function() {
+    instance.publishState('is_focused', true);
     instance.data.syncFont();
-    instance.data.renderOptions('');
+    instance.data.renderOptions(instance.data.currentQuery || '');
   });
 
   $input.on('click', function() {
     if (!instance.data.isOpen) {
       instance.data.syncFont();
-      instance.data.renderOptions('');
+      instance.data.renderOptions(instance.data.currentQuery || '');
     }
   });
 
@@ -253,6 +278,7 @@ function(instance, context) {
       instance.data.selectedThing = null;
       $clear.toggle(false);
       instance.publishState('value', null);
+      instance.data.updateValidation();
     }
     instance.data.renderOptions(val);
   });
@@ -281,6 +307,7 @@ function(instance, context) {
   });
 
   $input.on('blur', function() {
+    instance.publishState('is_focused', false);
     setTimeout(() => { instance.data.close(); }, 120);
   });
 
@@ -296,4 +323,7 @@ function(instance, context) {
       instance.data.close();
     }
   });
+
+  // Initial validation state
+  instance.data.updateValidation();
 }

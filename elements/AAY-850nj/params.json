@@ -19,6 +19,14 @@
         }
     },
     "fields": {
+        "AAP": {
+            "caption": "caption_field",
+            "doc": "The field to display as the text caption for each option.",
+            "editor": "custom_field_AAD",
+            "name": "caption_field",
+            "optional": true,
+            "rank": 2
+        },
         "AAQ": {
             "caption": "placeholder",
             "default_val": "Select options",
@@ -120,7 +128,17 @@
             "in_style": true,
             "name": "placeholder_color",
             "optional": true,
-            "rank": 7
+            "rank": 10
+        },
+        "ABE": {
+            "caption": "is_required",
+            "default_val": false,
+            "doc": "If enabled, the element is invalid when no option is selected.",
+            "editor": "Checkbox",
+            "in_style": false,
+            "name": "is_required",
+            "optional": true,
+            "rank": 11
         }
     },
     "has_reset_fn": true,
@@ -163,6 +181,24 @@
             },
             "name": "value_count",
             "value": "number"
+        },
+        "AAZ": {
+            "caption": "is_valid",
+            "doc": "True when the element passes validation.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_valid",
+            "value": "boolean"
+        },
+        "ABA": {
+            "caption": "is_focused",
+            "doc": "True when the input is currently focused.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_focused",
+            "value": "boolean"
         }
     },
     "support_autobinding": false
