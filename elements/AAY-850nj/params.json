@@ -18,6 +18,14 @@
         }
     },
     "fields": {
+        "AAP": {
+            "caption": "caption_field",
+            "doc": "The field to display as the text caption for each option.",
+            "editor": "custom_field_AAD",
+            "name": "caption_field",
+            "optional": true,
+            "rank": 2
+        },
         "AAQ": {
             "caption": "placeholder",
             "default_val": "Select options",
@@ -41,7 +49,7 @@
         "AAS": {
             "caption": "border_radius",
             "default_val": 6,
-            "doc": "Border radius of the input in pixels.",
+            "doc": "Border radius of the input and dropdown in pixels.",
             "editor": "StaticNumber",
             "in_style": true,
             "name": "border_radius",
@@ -58,28 +66,21 @@
             "optional": true,
             "rank": 6
         },
-        "AAZ": {
+        "AAU": {
             "caption": "options_type",
-            "doc": "",
+            "doc": "The data type of options in the dropdown list.",
             "editor": "custom_type",
             "name": "options_type",
-            "rank": 7
+            "rank": 0
         },
-        "AAa": {
+        "AAV": {
             "caption": "options_list",
-            "doc": "",
+            "doc": "The list of items to display in the dropdown.",
             "editor": "DynamicValue",
             "is_list": true,
             "name": "options_list",
-            "rank": 8,
-            "value": "custom_data_AAZ"
-        },
-        "AAb": {
-            "caption": "caption_field",
-            "doc": "",
-            "editor": "custom_field_AAZ",
-            "name": "caption_field",
-            "rank": 9
+            "rank": 1,
+            "value": "custom_data_AAD"
         },
         "ABA": {
             "caption": "selected_text_color",
@@ -94,7 +95,7 @@
         "ABB": {
             "caption": "max_selections",
             "default_val": 0,
-            "doc": "Maximum number of items that can be selected. 0 means unlimited.",
+            "doc": "Maximum items selectable. 0 means unlimited.",
             "editor": "StaticNumber",
             "in_style": true,
             "name": "max_selections",
@@ -110,6 +111,16 @@
             "optional": true,
             "rank": 9,
             "value": "custom_data_AAD"
+        },
+        "ABD": {
+            "caption": "placeholder_color",
+            "default_val": "rgba(100, 116, 139, 1)",
+            "doc": "Color of the placeholder and search hint text.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "placeholder_color",
+            "optional": true,
+            "rank": 10
         }
     },
     "has_reset_fn": true,
@@ -137,7 +148,7 @@
         },
         "AAX": {
             "caption": "search_term",
-            "doc": "The search term entered by the user.",
+            "doc": "The current search text in the dropdown search bar.",
             "initialization_code": {
                 "fn": "function(properties, context) {\n\n\n\n}"
             },

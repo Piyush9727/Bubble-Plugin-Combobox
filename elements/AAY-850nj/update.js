@@ -1,44 +1,60 @@
 function(instance, properties, context) {
-  if (typeof instance.data.syncFont === 'function') {
-    instance.data.syncFont();
+  // ── Config into instance.data ────────────────────────────────────────────
+  instance.data.placeholder   = properties.placeholder    || 'Select options';
+  instance.data.noResultsText = properties.no_results_text || 'No options found';
+  instance.data.maxSelections = properties.max_selections  || 0;
+  instance.data.captionField  = properties.caption_field;
+
+  // Update placeholder span if nothing is selected
+  if (instance.data.$tagsWrapper && instance.data.selectedThings && instance.data.selectedThings.length === 0) {
+    instance.data.$tagsWrapper.find('.ms-placeholder').text(instance.data.placeholder);
   }
 
-  // ── Sync config values into instance.data so other functions can read them
-  instance.data.placeholder    = properties.placeholder    || 'Select options';
-  instance.data.noResultsText  = properties.no_results_text || 'No options found';
-  instance.data.maxSelections  = properties.max_selections  || 0;
-  instance.data.captionField   = properties.caption_field;
-
-  // Update placeholder only when nothing is selected
-  if (instance.data.$searchInput && instance.data.selectedThings && instance.data.selectedThings.length === 0) {
-    instance.data.$searchInput.attr('placeholder', instance.data.placeholder);
-  }
-
-  // ── Border radius ────────────────────────────────────────────────────────
-  const borderRadius = (properties.border_radius !== undefined && properties.border_radius !== null)
-    ? properties.border_radius + 'px'
-    : '6px';
+  // ── Border radius (canvas + dropdown) ────────────────────────────────────
+  var br = (properties.border_radius !== undefined && properties.border_radius !== null)
+    ? properties.border_radius + 'px' : '6px';
   if (instance.canvas && typeof instance.canvas.css === 'function') {
-    instance.canvas.css('border-radius', borderRadius);
+    instance.canvas.css('border-radius', br);
+  }
+  if (instance.data.$dropdown) {
+    instance.data.$dropdown.css('border-radius', br);
   }
 
-  // ── Selection colors — CSS custom properties on both chips and list ──────
-  const selBg   = properties.selected_bg_color   || 'rgba(79, 70, 229, 1)';
-  const selText = properties.selected_text_color  || 'rgba(255, 255, 255, 1)';
-  if (instance.data.$list && instance.data.$list[0]) {
-    instance.data.$list[0].style.setProperty('--ms-sel-bg',   selBg);
-    instance.data.$list[0].style.setProperty('--ms-sel-text', selText);
-  }
+  // ── Chip + selected row colors → CSS custom properties ───────────────────
+  var selBg   = properties.selected_bg_color   || 'rgba(79, 70, 229, 1)';
+  var selText = properties.selected_text_color  || 'rgba(255, 255, 255, 1)';
   if (instance.data.$tagsWrapper && instance.data.$tagsWrapper[0]) {
     instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-bg',   selBg);
     instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-text', selText);
   }
+  if (instance.data.$list && instance.data.$list[0]) {
+    instance.data.$list[0].style.setProperty('--ms-sel-bg',   selBg);
+    instance.data.$list[0].style.setProperty('--ms-sel-text', selText);
+  }
+
+  // ── Placeholder color ─────────────────────────────────────────────────────
+  // ::placeholder pseudo-element must be set via a <style> tag (not jQuery .css)
+  // Also update the trigger placeholder span color directly
+  var pc = properties.placeholder_color || 'rgba(100, 116, 139, 1)';
+  if (instance.data.$scopedStyle) {
+    instance.data.$scopedStyle.text(
+      '#' + instance.data.uid + '-search::placeholder { color: ' + pc + '; opacity: 1; }'
+    );
+  }
+  if (instance.data.$tagsWrapper) {
+    instance.data.$tagsWrapper.find('.ms-placeholder').css('color', pc);
+  }
+
+  // ── Sync canvas background + font → dropdown panel ───────────────────────
+  if (typeof instance.data.syncStyles === 'function') {
+    instance.data.syncStyles();
+  }
 
   // ── Options list ─────────────────────────────────────────────────────────
-  let things = [];
+  var things = [];
   if (properties.options_list && typeof properties.options_list.length === 'function') {
     try {
-      const count = properties.options_list.length();
+      var count = properties.options_list.length();
       things = properties.options_list.get(0, count);
     } catch (err) {
       if (err && err.message === 'not ready') throw err;
@@ -49,30 +65,30 @@ function(instance, properties, context) {
   }
   instance.data.things = things;
 
-  // ── Default values — pre-select if nothing selected yet ──────────────────
+  // ── Default values — pre-select on first load ─────────────────────────────
   if (
     instance.data.selectedThings &&
     instance.data.selectedThings.length === 0 &&
     properties.default_values &&
     typeof instance.data.getItemLabel === 'function'
   ) {
-    let defaults = [];
+    var defaults = [];
     if (typeof properties.default_values.length === 'function') {
       try {
-        const count = properties.default_values.length();
-        defaults = properties.default_values.get(0, count);
+        var dc = properties.default_values.length();
+        defaults = properties.default_values.get(0, dc);
       } catch (e) { /* ignore */ }
     } else if (Array.isArray(properties.default_values)) {
       defaults = properties.default_values;
     }
 
     if (defaults.length > 0 && things.length > 0) {
-      const matched = [];
+      var matched = [];
       defaults.forEach(function(defVal) {
-        const match = things.find(function(t) {
+        var match = things.find(function(t) {
           try {
-            const tKey = instance.data.getKey(t);
-            const dKey = instance.data.getKey(defVal);
+            var tKey = instance.data.getKey(t);
+            var dKey = instance.data.getKey(defVal);
             if (tKey && dKey) return tKey === dKey;
             return instance.data.getItemLabel(t) === instance.data.getItemLabel(defVal);
           } catch (e) { return false; }
@@ -88,7 +104,7 @@ function(instance, properties, context) {
     }
   }
 
-  // Re-render dropdown if it's currently open
+  // Re-render dropdown options if currently open
   if (instance.data.isOpen && typeof instance.data.renderOptions === 'function') {
     instance.data.renderOptions(
       instance.data.$searchInput ? instance.data.$searchInput.val() : ''
