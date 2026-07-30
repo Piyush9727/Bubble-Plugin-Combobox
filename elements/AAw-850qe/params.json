@@ -132,12 +132,22 @@
         },
         "AAx": {
             "caption": "avatar_field",
-            "doc": "",
+            "doc": "The field on each option that provides the image or icon URL.",
             "editor": "custom_field_AAj",
             "field_type_restriction": "text_image_file",
             "name": "avatar_field",
             "optional": false,
             "rank": 4
+        },
+        "AAy": {
+            "caption": "allow_multiple",
+            "default_val": false,
+            "doc": "Enable multi-select mode. When disabled, only one option can be selected at a time.",
+            "editor": "Checkbox",
+            "in_style": false,
+            "name": "allow_multiple",
+            "optional": true,
+            "rank": 13
         }
     },
     "has_reset_fn": true,

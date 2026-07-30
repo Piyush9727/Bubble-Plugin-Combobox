@@ -5,7 +5,7 @@ function(instance, context) {
     instance.data.clearAll();
   } else {
     instance.data.selectedThings = [];
-    if (typeof instance.data.renderChips === 'function') instance.data.renderChips();
+    if (typeof instance.data.renderTrigger === 'function') instance.data.renderTrigger();
     if (typeof instance.data.close === 'function') instance.data.close();
     instance.publishState('value', []);
     instance.publishState('value_count', 0);
