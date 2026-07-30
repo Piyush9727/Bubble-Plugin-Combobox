@@ -68,6 +68,6 @@ function(instance, properties, context) {
   }
 
   if (instance.data.isOpen && typeof instance.data.renderOptions === 'function') {
-    instance.data.renderOptions(instance.data.$input.val());
+    instance.data.renderOptions(instance.data.currentQuery || '');
   }
 }

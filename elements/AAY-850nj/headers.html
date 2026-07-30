@@ -210,15 +210,14 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
+/* Selected: bold text + checkmark only, no background change */
 .ms-item-selected {
   font-weight: 600;
-  background: var(--ms-sel-bg, rgba(79, 70, 229, 1));
-  color: var(--ms-sel-text, rgba(255, 255, 255, 1));
 }
 
+/* Hover on a selected item: same tint as normal hover */
 .ms-item-selected.ms-item-active {
-  background: var(--ms-sel-bg, rgba(79, 70, 229, 1));
-  filter: brightness(0.9);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Checkmark column — fixed width, aligned to top of text */

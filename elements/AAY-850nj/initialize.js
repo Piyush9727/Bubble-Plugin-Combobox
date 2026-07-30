@@ -205,17 +205,34 @@ function(instance, context) {
     }
   };
 
-  // ── Position dropdown aligned to canvas outer box ────────────────────────
+  // ── Smart position: open downward if room, otherwise upward ─────────────
   instance.data.positionDropdown = function() {
     if (!instance.canvas) return;
     var canvasEl = instance.canvas[0] || instance.canvas;
     var rect = canvasEl.getBoundingClientRect();
-    $dropdown.css({
-      top:       (rect.bottom + 4) + 'px',
-      left:      rect.left + 'px',
-      width:     rect.width + 'px',
-      boxSizing: 'border-box'
-    });
+    // Estimate dropdown height: search bar (~44px) + up to 220px for list
+    var DROPDOWN_H = 44 + Math.min(220, (instance.data.things.length || 5) * 38 + 12);
+    var spaceBelow = window.innerHeight - rect.bottom;
+    var spaceAbove = rect.top;
+    var openUpward = spaceBelow < DROPDOWN_H + 8 && spaceAbove > spaceBelow;
+
+    if (openUpward) {
+      $dropdown.css({
+        top:       'auto',
+        bottom:    (window.innerHeight - rect.top + 4) + 'px',
+        left:      rect.left + 'px',
+        width:     rect.width + 'px',
+        boxSizing: 'border-box'
+      });
+    } else {
+      $dropdown.css({
+        top:       (rect.bottom + 4) + 'px',
+        bottom:    'auto',
+        left:      rect.left + 'px',
+        width:     rect.width + 'px',
+        boxSizing: 'border-box'
+      });
+    }
   };
 
   // ── Open / Close ──────────────────────────────────────────────────────────
@@ -225,6 +242,12 @@ function(instance, context) {
     instance.data.isOpen = true;
     $dropdown.addClass('ms-dropdown-open');
     $wrapper.attr('aria-expanded', 'true');
+    // Lock body scroll while dropdown is open
+    instance.data._prevOverflow     = document.body.style.overflow;
+    instance.data._prevPaddingRight = document.body.style.paddingRight;
+    var sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
     // Clear search and populate full list, then focus search bar
     $searchInput.val('');
     instance.publishState('search_term', '');
@@ -239,6 +262,9 @@ function(instance, context) {
     $searchInput.val('');
     instance.publishState('search_term', '');
     instance.data.activeIndex = -1;
+    // Restore body scroll
+    document.body.style.overflow     = instance.data._prevOverflow     || '';
+    document.body.style.paddingRight = instance.data._prevPaddingRight || '';
   };
 
   // ── Keyboard active item ──────────────────────────────────────────────────

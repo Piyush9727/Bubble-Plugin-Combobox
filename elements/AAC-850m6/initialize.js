@@ -94,18 +94,33 @@ function(instance, context) {
     return String(item);
   };
 
-  // Calculate floating listbox position relative to outer canvas box
+  // Smart position: open downward if room, otherwise upward
   instance.data.positionList = function() {
     if (!instance.canvas) return;
     const canvasEl = instance.canvas[0] || instance.canvas;
-    const canvasRect = canvasEl.getBoundingClientRect();
+    const rect = canvasEl.getBoundingClientRect();
+    const DROPDOWN_H = Math.min(240, (instance.data.things.length || 5) * 38 + 12);
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const openUpward = spaceBelow < DROPDOWN_H + 8 && spaceAbove > spaceBelow;
 
-    $list.css({
-      top: (canvasRect.bottom + 4) + 'px',
-      left: canvasRect.left + 'px',
-      width: canvasRect.width + 'px',
-      boxSizing: 'border-box'
-    });
+    if (openUpward) {
+      $list.css({
+        top:       'auto',
+        bottom:    (window.innerHeight - rect.top + 4) + 'px',
+        left:      rect.left + 'px',
+        width:     rect.width + 'px',
+        boxSizing: 'border-box'
+      });
+    } else {
+      $list.css({
+        top:       (rect.bottom + 4) + 'px',
+        bottom:    'auto',
+        left:      rect.left + 'px',
+        width:     rect.width + 'px',
+        boxSizing: 'border-box'
+      });
+    }
   };
 
   instance.data.open = function() {
@@ -113,6 +128,12 @@ function(instance, context) {
     instance.data.positionList();
     $list.addClass('cb-list-open');
     $input.attr('aria-expanded', 'true');
+    // Lock body scroll while dropdown is open
+    instance.data._prevOverflow = document.body.style.overflow;
+    var sbw = window.innerWidth - document.documentElement.clientWidth;
+    instance.data._prevPaddingRight = document.body.style.paddingRight;
+    document.body.style.overflow = 'hidden';
+    if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
   };
 
   instance.data.close = function() {
@@ -120,6 +141,9 @@ function(instance, context) {
     $list.removeClass('cb-list-open');
     $input.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
     instance.data.activeIndex = -1;
+    // Restore body scroll
+    document.body.style.overflow = instance.data._prevOverflow || '';
+    document.body.style.paddingRight = instance.data._prevPaddingRight || '';
   };
 
   instance.data.setActive = function(idx) {
@@ -160,8 +184,10 @@ function(instance, context) {
   // Single source of truth for rendering the option list
   instance.data.renderOptions = function(query) {
     const things = instance.data.things || [];
+    // Track the last user-typed query so update.js can re-render correctly
+    instance.data.currentQuery = query || '';
 
-    const q = (query || '').trim().toLowerCase();
+    const q = instance.data.currentQuery.trim().toLowerCase();
     const filtered = q
       ? things.filter(t => instance.data.getItemLabel(t).toLowerCase().includes(q))
       : things.slice();
