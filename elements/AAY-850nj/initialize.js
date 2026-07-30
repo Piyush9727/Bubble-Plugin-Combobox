@@ -243,18 +243,42 @@ function(instance, context) {
     }
   };
 
+  // Global ref-counted scroll lock manager
+  window.__cb_scroll_lock = window.__cb_scroll_lock || {
+    count: 0,
+    prevOverflow: '',
+    prevPaddingRight: '',
+    lock: function() {
+      if (this.count === 0) {
+        this.prevOverflow = document.body.style.overflow || '';
+        this.prevPaddingRight = document.body.style.paddingRight || '';
+        var sbw = window.innerWidth - document.documentElement.clientWidth;
+        document.body.style.overflow = 'hidden';
+        if (sbw > 0) {
+          var currPad = parseFloat(window.getComputedStyle(document.body).paddingRight || 0);
+          document.body.style.paddingRight = (currPad + sbw) + 'px';
+        }
+      }
+      this.count++;
+    },
+    unlock: function() {
+      if (this.count > 0) {
+        this.count--;
+      }
+      if (this.count === 0) {
+        document.body.style.overflow = this.prevOverflow;
+        document.body.style.paddingRight = this.prevPaddingRight;
+      }
+    }
+  };
+
   // ── Open / Close ──────────────────────────────────────────────────────────
   instance.data.open = function() {
     instance.data.syncStyles();
     instance.data.positionDropdown();
     if (!instance.data.isOpen) {
       instance.data.isOpen = true;
-      // Lock body scroll while dropdown is open
-      instance.data._prevOverflow     = document.body.style.overflow;
-      instance.data._prevPaddingRight = document.body.style.paddingRight;
-      var sbw = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
-      if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
+      window.__cb_scroll_lock.lock();
     }
     $dropdown.addClass('ms-dropdown-open');
     $wrapper.attr('aria-expanded', 'true');
@@ -272,9 +296,7 @@ function(instance, context) {
     $searchInput.val('');
     instance.publishState('search_term', '');
     instance.data.activeIndex = -1;
-    // Restore body scroll
-    document.body.style.overflow     = instance.data._prevOverflow     !== undefined ? instance.data._prevOverflow     : '';
-    document.body.style.paddingRight = instance.data._prevPaddingRight !== undefined ? instance.data._prevPaddingRight : '';
+    window.__cb_scroll_lock.unlock();
   };
 
   // ── Keyboard active item ──────────────────────────────────────────────────
@@ -477,6 +499,16 @@ function(instance, context) {
   $(window).on('scroll.' + uid + ' resize.' + uid, function() {
     if (instance.data.isOpen) instance.data.positionDropdown();
     instance.data.renderChips();
+  });
+
+  $wrapper.on('remove', function() {
+    $(document).off('click.' + uid);
+    $(window).off('scroll.' + uid + ' resize.' + uid);
+    if (instance.data.isOpen) {
+      instance.data.close();
+    }
+    $dropdown.remove();
+    $scopedStyle.remove();
   });
 
   // Initial render & validation

@@ -153,17 +153,41 @@ function(instance, context) {
     }
   };
 
+  // Global ref-counted scroll lock manager
+  window.__cb_scroll_lock = window.__cb_scroll_lock || {
+    count: 0,
+    prevOverflow: '',
+    prevPaddingRight: '',
+    lock: function() {
+      if (this.count === 0) {
+        this.prevOverflow = document.body.style.overflow || '';
+        this.prevPaddingRight = document.body.style.paddingRight || '';
+        var sbw = window.innerWidth - document.documentElement.clientWidth;
+        document.body.style.overflow = 'hidden';
+        if (sbw > 0) {
+          var currPad = parseFloat(window.getComputedStyle(document.body).paddingRight || 0);
+          document.body.style.paddingRight = (currPad + sbw) + 'px';
+        }
+      }
+      this.count++;
+    },
+    unlock: function() {
+      if (this.count > 0) {
+        this.count--;
+      }
+      if (this.count === 0) {
+        document.body.style.overflow = this.prevOverflow;
+        document.body.style.paddingRight = this.prevPaddingRight;
+      }
+    }
+  };
+
   instance.data.open = function() {
     instance.data.syncFont();
     instance.data.positionList();
     if (!instance.data.isOpen) {
       instance.data.isOpen = true;
-      // Lock body scroll while dropdown is open
-      instance.data._prevOverflow = document.body.style.overflow;
-      instance.data._prevPaddingRight = document.body.style.paddingRight;
-      var sbw = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
-      if (sbw > 0) document.body.style.paddingRight = (parseFloat(document.body.style.paddingRight || 0) + sbw) + 'px';
+      window.__cb_scroll_lock.lock();
     }
     $list.addClass('cb-list-open');
     $input.attr('aria-expanded', 'true');
@@ -175,9 +199,7 @@ function(instance, context) {
     $list.removeClass('cb-list-open');
     $input.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
     instance.data.activeIndex = -1;
-    // Restore body scroll
-    document.body.style.overflow = instance.data._prevOverflow !== undefined ? instance.data._prevOverflow : '';
-    document.body.style.paddingRight = instance.data._prevPaddingRight !== undefined ? instance.data._prevPaddingRight : '';
+    window.__cb_scroll_lock.unlock();
   };
 
   instance.data.setActive = function(idx) {
@@ -332,6 +354,16 @@ function(instance, context) {
     if (!$container[0].contains(e.target) && !$list[0].contains(e.target)) {
       instance.data.close();
     }
+  });
+
+  $container.on('remove', function() {
+    $(document).off('click.' + uid);
+    $(window).off('scroll.' + uid + ' resize.' + uid);
+    if (instance.data.isOpen) {
+      instance.data.close();
+    }
+    $list.remove();
+    $scopedStyle.remove();
   });
 
   // Initial validation state
