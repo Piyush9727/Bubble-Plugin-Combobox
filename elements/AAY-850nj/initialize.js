@@ -414,4 +414,7 @@ function(instance, context) {
     if (instance.data.isOpen) instance.data.positionDropdown();
     instance.data.renderChips();
   });
+
+  // Initial render — populate placeholder on first load
+  instance.data.renderChips();
 }

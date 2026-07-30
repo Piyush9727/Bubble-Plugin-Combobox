@@ -5,9 +5,9 @@ function(instance, properties, context) {
   instance.data.maxSelections = properties.max_selections  || 0;
   instance.data.captionField  = properties.caption_field;
 
-  // Update placeholder span if nothing is selected
-  if (instance.data.$tagsWrapper && instance.data.selectedThings && instance.data.selectedThings.length === 0) {
-    instance.data.$tagsWrapper.find('.ms-placeholder').text(instance.data.placeholder);
+  // Re-render chips/placeholder so text stays in sync with updated placeholder property
+  if (instance.data.selectedThings && instance.data.selectedThings.length === 0 && typeof instance.data.renderChips === 'function') {
+    instance.data.renderChips();
   }
 
   // ── Border radius (canvas + dropdown) ────────────────────────────────────
