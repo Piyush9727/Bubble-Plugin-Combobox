@@ -62,16 +62,6 @@
             "optional": true,
             "rank": 4
         },
-        "AAL": {
-            "caption": "border_radius",
-            "default_val": 6,
-            "doc": "Border radius of the input in pixels.",
-            "editor": "StaticNumber",
-            "in_style": true,
-            "name": "border_radius",
-            "optional": true,
-            "rank": 5
-        },
         "AAM": {
             "caption": "selected_bg_color",
             "default_val": "rgba(79, 70, 229, 1)",

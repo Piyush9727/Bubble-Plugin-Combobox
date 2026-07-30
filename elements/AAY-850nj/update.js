@@ -11,18 +11,11 @@ function(instance, properties, context) {
     instance.data.renderChips();
   }
 
-  // ── Border radius (canvas + dropdown) ────────────────────────────────────
-  var br = (properties.border_radius !== undefined && properties.border_radius !== null)
-    ? properties.border_radius + 'px' : '6px';
   if (instance.canvas && typeof instance.canvas.css === 'function') {
     instance.canvas.css({
-      'border-radius': br,
       'display': 'flex',
       'align-items': 'center'
     });
-  }
-  if (instance.data.$dropdown) {
-    instance.data.$dropdown.css('border-radius', br);
   }
 
   // ── Chip + selected row colors → CSS custom properties ───────────────────
