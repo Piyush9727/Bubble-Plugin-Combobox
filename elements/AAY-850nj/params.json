@@ -2,6 +2,7 @@
     "add_hover_pressed": true,
     "add_is_visible": true,
     "autobinding_is_list": false,
+    "autobinding_value": "text",
     "can_fit_height": true,
     "can_fit_width": true,
     "category": "input forms",
@@ -36,7 +37,7 @@
             "in_style": true,
             "name": "no_results_text",
             "optional": true,
-            "rank": 4
+            "rank": 6
         },
         "AAS": {
             "caption": "border_radius",
@@ -46,7 +47,7 @@
             "in_style": true,
             "name": "border_radius",
             "optional": true,
-            "rank": 5
+            "rank": 10
         },
         "AAT": {
             "caption": "selected_bg_color",
@@ -56,7 +57,7 @@
             "in_style": true,
             "name": "selected_bg_color",
             "optional": true,
-            "rank": 6
+            "rank": 8
         },
         "AAU": {
             "caption": "options_type",
@@ -79,7 +80,7 @@
             "doc": "",
             "editor": "custom_field_AAU",
             "name": "caption_field",
-            "rank": 10
+            "rank": 2
         },
         "ABA": {
             "caption": "selected_text_color",
@@ -89,7 +90,7 @@
             "in_style": true,
             "name": "selected_text_color",
             "optional": true,
-            "rank": 7
+            "rank": 9
         },
         "ABB": {
             "caption": "max_selections",
@@ -99,7 +100,7 @@
             "in_style": true,
             "name": "max_selections",
             "optional": true,
-            "rank": 8
+            "rank": 4
         },
         "ABC": {
             "caption": "default_values",
@@ -108,7 +109,7 @@
             "is_list": true,
             "name": "default_values",
             "optional": true,
-            "rank": 9,
+            "rank": 5,
             "value": "custom_data_AAD"
         },
         "ABD": {
@@ -119,7 +120,7 @@
             "in_style": true,
             "name": "placeholder_color",
             "optional": true,
-            "rank": 10
+            "rank": 7
         }
     },
     "has_reset_fn": true,
@@ -143,7 +144,7 @@
             },
             "is_list": true,
             "name": "value",
-            "value": "custom_data_AAD"
+            "value": "custom_data_AAU"
         },
         "AAX": {
             "caption": "search_term",
