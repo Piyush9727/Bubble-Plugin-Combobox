@@ -1,9 +1,10 @@
 function(instance, properties, context) {
-  // ── Config into instance.data ────────────────────────────────────────────
-  instance.data.placeholder   = properties.placeholder    || 'Select options';
-  instance.data.noResultsText = properties.no_results_text || 'No options found';
-  instance.data.maxSelections = properties.max_selections  || 0;
-  instance.data.captionField  = properties.caption_field;
+  // ── Sync config values into instance.data so other functions can read them
+  instance.data.placeholder    = properties.placeholder    || 'Select options';
+  instance.data.noResultsText  = properties.no_results_text || 'No options found';
+  instance.data.maxSelections  = properties.max_selections  || 0;
+  instance.data.isRequired     = !!properties.is_required;
+  instance.data.captionField   = properties.caption_field;
 
   // Re-render chips/placeholder so text stays in sync with updated placeholder property
   if (instance.data.selectedThings && instance.data.selectedThings.length === 0 && typeof instance.data.renderChips === 'function') {
@@ -23,18 +24,16 @@ function(instance, properties, context) {
   // ── Chip + selected row colors → CSS custom properties ───────────────────
   var selBg   = properties.selected_bg_color   || 'rgba(79, 70, 229, 1)';
   var selText = properties.selected_text_color  || 'rgba(255, 255, 255, 1)';
-  if (instance.data.$tagsWrapper && instance.data.$tagsWrapper[0]) {
-    instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-bg',   selBg);
-    instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-text', selText);
-  }
   if (instance.data.$list && instance.data.$list[0]) {
     instance.data.$list[0].style.setProperty('--ms-sel-bg',   selBg);
     instance.data.$list[0].style.setProperty('--ms-sel-text', selText);
   }
+  if (instance.data.$tagsWrapper && instance.data.$tagsWrapper[0]) {
+    instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-bg',   selBg);
+    instance.data.$tagsWrapper[0].style.setProperty('--ms-sel-text', selText);
+  }
 
   // ── Placeholder color ─────────────────────────────────────────────────────
-  // ::placeholder pseudo-element must be set via a <style> tag (not jQuery .css)
-  // Also update the trigger placeholder span color directly
   var pc = properties.placeholder_color || 'rgba(100, 116, 139, 1)';
   if (instance.data.$scopedStyle) {
     instance.data.$scopedStyle.text(
@@ -65,7 +64,7 @@ function(instance, properties, context) {
   }
   instance.data.things = things;
 
-  // ── Default values — pre-select on first load ─────────────────────────────
+  // ── Default values — pre-select if nothing selected yet ──────────────────
   if (
     instance.data.selectedThings &&
     instance.data.selectedThings.length === 0 &&
@@ -104,7 +103,12 @@ function(instance, properties, context) {
     }
   }
 
-  // Re-render dropdown options if currently open
+  // Update validation state
+  if (typeof instance.data.updateValidation === 'function') {
+    instance.data.updateValidation();
+  }
+
+  // Re-render dropdown if it's currently open
   if (instance.data.isOpen && typeof instance.data.renderOptions === 'function') {
     instance.data.renderOptions(
       instance.data.$searchInput ? instance.data.$searchInput.val() : ''

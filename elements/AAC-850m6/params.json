@@ -101,6 +101,26 @@
             "optional": true,
             "rank": 8,
             "value": "custom_data_AAD"
+        },
+        "AAP": {
+            "caption": "placeholder_color",
+            "default_val": "rgba(100, 116, 139, 1)",
+            "doc": "Color of the placeholder text.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "placeholder_color",
+            "optional": true,
+            "rank": 9
+        },
+        "AAQ": {
+            "caption": "is_required",
+            "default_val": false,
+            "doc": "If enabled, the element is invalid when no option is selected.",
+            "editor": "Checkbox",
+            "in_style": false,
+            "name": "is_required",
+            "optional": true,
+            "rank": 10
         }
     },
     "has_reset_fn": true,
@@ -133,6 +153,24 @@
             },
             "name": "search_term",
             "value": "text"
+        },
+        "AAR": {
+            "caption": "is_valid",
+            "doc": "True when the element passes validation.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_valid",
+            "value": "boolean"
+        },
+        "AAS": {
+            "caption": "is_focused",
+            "doc": "True when the input is currently focused.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_focused",
+            "value": "boolean"
         }
     },
     "support_autobinding": false

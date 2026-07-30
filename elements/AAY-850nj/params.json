@@ -18,6 +18,14 @@
         }
     },
     "fields": {
+        "AAP": {
+            "caption": "caption_field",
+            "doc": "The field to display as the text caption for each option.",
+            "editor": "custom_field_AAD",
+            "name": "caption_field",
+            "optional": true,
+            "rank": 2
+        },
         "AAQ": {
             "caption": "placeholder",
             "default_val": "Select options",
@@ -72,14 +80,7 @@
             "is_list": true,
             "name": "options_list",
             "rank": 1,
-            "value": "custom_data_AAU"
-        },
-        "AAc": {
-            "caption": "caption_field",
-            "doc": "",
-            "editor": "custom_field_AAU",
-            "name": "caption_field",
-            "rank": 10
+            "value": "custom_data_AAD"
         },
         "ABA": {
             "caption": "selected_text_color",
@@ -120,6 +121,16 @@
             "name": "placeholder_color",
             "optional": true,
             "rank": 10
+        },
+        "ABE": {
+            "caption": "is_required",
+            "default_val": false,
+            "doc": "If enabled, the element is invalid when no option is selected.",
+            "editor": "Checkbox",
+            "in_style": false,
+            "name": "is_required",
+            "optional": true,
+            "rank": 11
         }
     },
     "has_reset_fn": true,
@@ -162,6 +173,24 @@
             },
             "name": "value_count",
             "value": "number"
+        },
+        "AAZ": {
+            "caption": "is_valid",
+            "doc": "True when the element passes validation.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_valid",
+            "value": "boolean"
+        },
+        "ABA": {
+            "caption": "is_focused",
+            "doc": "True when the input is currently focused.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_focused",
+            "value": "boolean"
         }
     },
     "support_autobinding": false

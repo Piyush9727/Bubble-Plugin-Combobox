@@ -10,6 +10,7 @@ function(instance, context) {
   instance.data.filtered       = [];
   instance.data.isOpen         = false;
   instance.data.maxSelections  = 0;
+  instance.data.isRequired     = false;
   instance.data.placeholder    = 'Select options';
   instance.data.noResultsText  = 'No options found';
 
@@ -54,6 +55,15 @@ function(instance, context) {
     return String(item);
   };
 
+  // ── Validation state updater ──────────────────────────────────────────────
+  instance.data.updateValidation = function() {
+    var isReq = !!instance.data.isRequired;
+    var hasVal = Array.isArray(instance.data.selectedThings) && instance.data.selectedThings.length > 0;
+    var isValid = isReq ? hasVal : true;
+    instance.publishState('is_valid', isValid);
+    return isValid;
+  };
+
   // ── DOM: Trigger ─────────────────────────────────────────────────────────
   var $wrapper = $([
     '<div class="ms-wrapper" tabindex="0" role="combobox"',
@@ -92,7 +102,7 @@ function(instance, context) {
   var $searchInput = $dropdown.find('.ms-search-input');
   var $list        = $dropdown.find('.ms-list');
 
-  // Scoped <style> tag for ::placeholder color (can't be set via jQuery .css())
+  // Scoped <style> tag for ::placeholder color
   var $scopedStyle = $('<style>').attr('id', uid + '-pstyle').appendTo('head');
 
   instance.data.$wrapper      = $wrapper;
@@ -117,7 +127,6 @@ function(instance, context) {
     var fw    = cs.fontWeight;
     var fi    = cs.fontStyle;
 
-    // Transparent canvas → default to white so dropdown is always readable
     var isTransparent = (bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)');
     var dropdownBg = isTransparent ? '#ffffff' : bg;
 
@@ -151,12 +160,10 @@ function(instance, context) {
     }
     $clearAll.css('display', '');
 
-    var BADGE_W = 44;  // estimated "+N" badge width in px
-    var GAP     = 4;   // gap between chips in px
-    // Total available width (subtract clear + toggle + small padding)
-    var avail = Math.max($tagsWrapper[0].clientWidth - 56, 80);
+    var BADGE_W = 44;
+    var GAP     = 4;
+    var avail   = Math.max($tagsWrapper[0].clientWidth - 56, 80);
 
-    // Step 1 — measure each chip's natural width off-screen
     var widths = selections.map(function(t) {
       var $tmp = instance.data.makeChip(t)
         .css({ position: 'absolute', visibility: 'hidden', left: '-9999px', top: '-9999px', maxWidth: 'none' })
@@ -166,17 +173,14 @@ function(instance, context) {
       return w;
     });
 
-    // Step 2 — greedy fit: first chip always shown, rest fit if they can
     var visible = 0;
     var used    = 0;
     for (var i = 0; i < widths.length; i++) {
       var chipW     = widths[i];
       var moreAfter = widths.length - i - 1;
-      // Reserve badge space when subsequent items exist
       var budgetHere = avail - (moreAfter > 0 ? BADGE_W + GAP : 0);
 
       if (i === 0) {
-        // First chip always gets a slot (capped to budget)
         visible = 1;
         used = Math.min(chipW, budgetHere) + GAP;
       } else if (used + chipW <= budgetHere) {
@@ -187,19 +191,16 @@ function(instance, context) {
       }
     }
 
-    // Step 3 — render visible chips
     var hiddenCount = selections.length - visible;
     for (var j = 0; j < visible; j++) {
       var $chip = instance.data.makeChip(selections[j]);
       if (j === 0 && hiddenCount > 0) {
-        // Cap first chip width so badge has room
         var firstBudget = avail - BADGE_W - GAP;
         $chip.css('max-width', Math.max(firstBudget, 60) + 'px');
       }
       $chip.appendTo($tagsWrapper);
     }
 
-    // Step 4 — overflow badge
     if (hiddenCount > 0) {
       $('<span class="ms-overflow-badge">').text('+' + hiddenCount).appendTo($tagsWrapper);
     }
@@ -210,7 +211,6 @@ function(instance, context) {
     if (!instance.canvas) return;
     var canvasEl = instance.canvas[0] || instance.canvas;
     var rect = canvasEl.getBoundingClientRect();
-    // Estimate dropdown height: search bar (~44px) + up to 220px for list
     var DROPDOWN_H = 44 + Math.min(220, (instance.data.things.length || 5) * 38 + 12);
     var spaceBelow = window.innerHeight - rect.bottom;
     var spaceAbove = rect.top;
@@ -250,7 +250,6 @@ function(instance, context) {
     }
     $dropdown.addClass('ms-dropdown-open');
     $wrapper.attr('aria-expanded', 'true');
-    // Clear search and populate full list, then focus search bar
     $searchInput.val('');
     instance.publishState('search_term', '');
     instance.data.renderOptions('');
@@ -298,8 +297,8 @@ function(instance, context) {
     instance.data.renderChips();
     instance.publishState('value', instance.data.selectedThings);
     instance.publishState('value_count', instance.data.selectedThings.length);
+    instance.data.updateValidation();
     instance.triggerEvent('value_changed');
-    // Keep dropdown open — re-render options with updated checkmarks
     instance.data.renderOptions($searchInput.val());
   };
 
@@ -312,6 +311,7 @@ function(instance, context) {
     instance.data.renderChips();
     instance.publishState('value', instance.data.selectedThings);
     instance.publishState('value_count', instance.data.selectedThings.length);
+    instance.data.updateValidation();
     instance.triggerEvent('value_changed');
     if (instance.data.isOpen) instance.data.renderOptions($searchInput.val());
   };
@@ -322,6 +322,7 @@ function(instance, context) {
     instance.data.renderChips();
     instance.publishState('value', []);
     instance.publishState('value_count', 0);
+    instance.data.updateValidation();
     instance.triggerEvent('value_changed');
     instance.publishState('search_term', '');
     if (instance.data.isOpen) {
@@ -365,7 +366,6 @@ function(instance, context) {
       $item.appendTo($list);
     });
 
-    // Highlight first selected item, or first item
     var firstSelIdx = filtered.findIndex(function(t) {
       return instance.data.selectedThings.some(function(s) { return instance.data.getKey(s) === instance.data.getKey(t); });
     });
@@ -373,8 +373,11 @@ function(instance, context) {
   };
 
   // ── Events: Trigger wrapper ───────────────────────────────────────────────
+  $wrapper.on('focus', function() {
+    instance.publishState('is_focused', true);
+  });
+
   $wrapper.on('click', function(e) {
-    // Let clear-all and chip remove buttons handle their own clicks
     if ($clearAll[0] && $clearAll[0].contains(e.target)) return;
     if ($(e.target).hasClass('ms-chip-remove') || $(e.target).closest('.ms-chip-remove').length) return;
     if (instance.data.isOpen) instance.data.close();
@@ -396,6 +399,10 @@ function(instance, context) {
   $clearAll.css('display', 'none');
 
   // ── Events: Search input ──────────────────────────────────────────────────
+  $searchInput.on('focus', function() {
+    instance.publishState('is_focused', true);
+  });
+
   $searchInput.on('input', function() {
     var val = $(this).val();
     instance.publishState('search_term', val);
@@ -427,7 +434,21 @@ function(instance, context) {
       var active = document.activeElement;
       var inDropdown = $dropdown[0] && $dropdown[0].contains(active);
       var inWrapper  = $wrapper[0]  && $wrapper[0].contains(active);
-      if (!inDropdown && !inWrapper) instance.data.close();
+      if (!inDropdown && !inWrapper) {
+        instance.data.close();
+        instance.publishState('is_focused', false);
+      }
+    }, 150);
+  });
+
+  $wrapper.on('blur', function() {
+    setTimeout(function() {
+      var active = document.activeElement;
+      var inDropdown = $dropdown[0] && $dropdown[0].contains(active);
+      var inWrapper  = $wrapper[0]  && $wrapper[0].contains(active);
+      if (!inDropdown && !inWrapper) {
+        instance.publishState('is_focused', false);
+      }
     }, 150);
   });
 
@@ -435,7 +456,10 @@ function(instance, context) {
   $(document).on('click.' + uid, function(e) {
     var inWrapper  = $wrapper[0]  && $wrapper[0].contains(e.target);
     var inDropdown = $dropdown[0] && $dropdown[0].contains(e.target);
-    if (!inWrapper && !inDropdown) instance.data.close();
+    if (!inWrapper && !inDropdown) {
+      instance.data.close();
+      instance.publishState('is_focused', false);
+    }
   });
 
   // ── Reposition + recalculate chip overflow on scroll/resize ───────────────
@@ -444,6 +468,7 @@ function(instance, context) {
     instance.data.renderChips();
   });
 
-  // Initial render — populate placeholder on first load
+  // Initial render & validation
   instance.data.renderChips();
+  instance.data.updateValidation();
 }
