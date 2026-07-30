@@ -1,0 +1,195 @@
+{
+    "add_hover_pressed": true,
+    "add_is_visible": true,
+    "autobinding_is_list": false,
+    "autobinding_value": "text",
+    "can_fit_height": true,
+    "can_fit_width": true,
+    "category": "input forms",
+    "default_dim": {
+        "height": 40,
+        "width": 225
+    },
+    "display": "Extended Custom Select",
+    "events": {
+        "AAe": {
+            "caption": "combobox_value_changed",
+            "doc": "Fired when the user selects or deselects a value.",
+            "name": "value_changed"
+        }
+    },
+    "fields": {
+        "AAf": {
+            "caption": "caption_field",
+            "doc": "The field to display as the text caption for each option.",
+            "editor": "custom_field_AAD",
+            "name": "caption_field",
+            "optional": true,
+            "rank": 2
+        },
+        "AAg": {
+            "caption": "placeholder",
+            "default_val": "Select options",
+            "doc": "Placeholder text when no value is selected.",
+            "editor": "StaticText",
+            "in_style": true,
+            "name": "placeholder",
+            "optional": true,
+            "rank": 3
+        },
+        "AAh": {
+            "caption": "no_results_text",
+            "default_val": "No options found",
+            "doc": "Text shown when search yields no matching items.",
+            "editor": "StaticText",
+            "in_style": true,
+            "name": "no_results_text",
+            "optional": true,
+            "rank": 4
+        },
+        "AAi": {
+            "caption": "selected_bg_color",
+            "default_val": "rgba(79, 70, 229, 1)",
+            "doc": "Background color of chips and selected option rows.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "selected_bg_color",
+            "optional": true,
+            "rank": 8
+        },
+        "AAj": {
+            "caption": "options_type",
+            "doc": "The data type of options in the dropdown list.",
+            "editor": "custom_type",
+            "name": "options_type",
+            "rank": 0
+        },
+        "AAk": {
+            "caption": "options_list",
+            "doc": "The list of items to display in the dropdown.",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "options_list",
+            "rank": 1,
+            "value": "custom_data_AAU"
+        },
+        "AAl": {
+            "caption": "caption_field",
+            "doc": "",
+            "editor": "custom_field_AAU",
+            "name": "caption_field",
+            "rank": 2
+        },
+        "AAm": {
+            "caption": "selected_text_color",
+            "default_val": "rgba(255, 255, 255, 1)",
+            "doc": "Text and checkmark color of chips and selected rows.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "selected_text_color",
+            "optional": true,
+            "rank": 9
+        },
+        "AAn": {
+            "caption": "max_selections",
+            "default_val": 0,
+            "doc": "Maximum items selectable. 0 means unlimited.",
+            "editor": "StaticNumber",
+            "in_style": true,
+            "name": "max_selections",
+            "optional": true,
+            "rank": 4
+        },
+        "AAo": {
+            "caption": "default_values",
+            "doc": "Pre-selected values shown when the element loads.",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "default_values",
+            "optional": true,
+            "rank": 5,
+            "value": "custom_data_AAU"
+        },
+        "AAp": {
+            "caption": "placeholder_color",
+            "default_val": "rgba(100, 116, 139, 1)",
+            "doc": "Color of the placeholder and search hint text.",
+            "editor": "Color",
+            "in_style": true,
+            "name": "placeholder_color",
+            "optional": true,
+            "rank": 10
+        },
+        "AAq": {
+            "caption": "is_required",
+            "default_val": false,
+            "doc": "If enabled, the element is invalid when no option is selected.",
+            "editor": "Checkbox",
+            "in_style": false,
+            "name": "is_required",
+            "optional": true,
+            "rank": 11
+        }
+    },
+    "has_reset_fn": true,
+    "icon": "ion-android-arrow-dropdown",
+    "platform_type": "web",
+    "property_applications": {
+        "Background": true,
+        "Border": true,
+        "BoxShadow": true,
+        "Font": true,
+        "MinWidth": true,
+        "Padding": true,
+        "resizable": true
+    },
+    "states": {
+        "AAr": {
+            "caption": "value",
+            "doc": "The list of currently selected items.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "is_list": true,
+            "name": "value",
+            "value": "custom_data_AAU"
+        },
+        "AAs": {
+            "caption": "search_term",
+            "doc": "The current search text in the dropdown search bar.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "search_term",
+            "value": "text"
+        },
+        "AAt": {
+            "caption": "value_count",
+            "doc": "The number of currently selected items.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "value_count",
+            "value": "number"
+        },
+        "AAu": {
+            "caption": "is_valid",
+            "doc": "True when the element passes validation.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_valid",
+            "value": "boolean"
+        },
+        "AAv": {
+            "caption": "is_focused",
+            "doc": "True when the input is currently focused.",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "is_focused",
+            "value": "boolean"
+        }
+    },
+    "support_autobinding": false
+}
